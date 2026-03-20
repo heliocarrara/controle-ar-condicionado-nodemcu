@@ -1,0 +1,27 @@
+# PlatformIO
+.pio/
+.pio
+.vscode/
+
+# Build artifacts
+*.bin
+*.elf
+
+# Logs and databases
+*.log
+*.sqlite
+
+# OS generated files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# C/C++ build output
+build/
+bin/
+
+# Environment files (Good practice for passwords/keys)
+.env
+*.env
+secret.h
+credentials.h
