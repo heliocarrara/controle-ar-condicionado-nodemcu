@@ -160,8 +160,10 @@ void handleRoot() {
     html += "<button class='full' onclick=\"fetch('/api/power?key=" + API_KEY + "&status=on').then(r=>r.json()).then(d=>alert(d.message))\">LIGAR</button>"; 
     html += "<button class='full off' onclick=\"fetch('/api/power?key=" + API_KEY + "&status=off').then(r=>r.json()).then(d=>alert(d.message))\">DESLIGAR</button>"; 
     html += "<hr>"; 
-    html += "<button onclick=\"fetch('/api/temp?key=" + API_KEY + "&v=22').then(r=>r.json()).then(d=>alert(d.message))\">22°C</button>"; 
-    html += "<button onclick=\"fetch('/api/temp?key=" + API_KEY + "&v=24').then(r=>r.json()).then(d=>alert(d.message))\">24°C</button>"; 
+    for(int i = 16; i <= 25; i++) {
+        html += "<button onclick=\"fetch('/api/temp?key=" + API_KEY + "&v=" + String(i) + "').then(r=>r.json()).then(d=>alert(d.message))\">" + String(i) + "°C</button>"; 
+    }
+    html += "<hr>"; 
     html += "<button onclick=\"fetch('/api/mode?key=" + API_KEY + "&v=cool').then(r=>r.json()).then(d=>alert(d.message))\">Modo Frio</button>"; 
     html += "<button onclick=\"fetch('/api/fan?key=" + API_KEY + "&v=auto').then(r=>r.json()).then(d=>alert(d.message))\">Ventilador Auto</button>"; 
     html += "</body></html>"; 
