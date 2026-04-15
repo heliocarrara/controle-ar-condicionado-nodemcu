@@ -9,7 +9,7 @@
  
 // --- CONFIGURAÇÕES --- 
 const char* ssid = "CEU-ITALIA"; 
-const char* password = "C3u1t4L1a"; 
+const char* password = "senha"; 
  
 #define DHTPIN 14    // Pino D5 
 #define DHTTYPE DHT22 
