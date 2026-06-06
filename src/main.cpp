@@ -2,10 +2,12 @@
 #include <ESP8266WiFi.h> 
 #include <ESP8266WebServer.h> 
 #include <ESP8266mDNS.h> 
+#include <ESP8266HTTPClient.h>
 #include <DHT.h> 
 #include <IRremoteESP8266.h> 
 #include <ir_Tcl.h> 
 #include <ArduinoJson.h> 
+#include "webpage.h" 
  
 // --- CONFIGURAÇÕES --- 
 const char* ssid = "CEU-ITALIA"; 
@@ -73,132 +75,7 @@ void lerSensor() {
 // --- PÁGINA WEB (INTERFACE) --- 
 void handleRoot() { 
     lerSensor(); 
-    String html = "<!DOCTYPE html><html lang='pt-BR'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'>";
-    html += "<title>Controle do Ar</title>";
-    html += "<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>"; // Adiciona biblioteca do gráfico
-    html += "<style>";
-    html += "body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }";
-    html += ".card { background: white; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); padding: 20px; margin-bottom: 20px; width: 100%; max-width: 400px; text-align: center; box-sizing: border-box; }";
-    html += "h2 { margin-top: 0; color: #2c3e50; font-size: 1.2rem; border-bottom: 2px solid #eee; padding-bottom: 10px; }";
-    html += ".btn-group { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 15px; }";
-    html += "button { border: none; border-radius: 8px; padding: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: transform 0.1s; flex: 1 1 calc(33% - 10px); min-width: 60px; }";
-    html += "button:active { transform: scale(0.95); }";
-    html += ".btn-on { background-color: #2ecc71; color: white; flex: 1 1 45%; }";
-    html += ".btn-off { background-color: #e74c3c; color: white; flex: 1 1 45%; }";
-    html += ".btn-temp { background-color: #3498db; color: white; flex: 1 1 calc(20% - 10px); padding: 12px 5px; }";
-    html += ".btn-fan { background-color: #9b59b6; color: white; flex: 1 1 calc(20% - 10px); padding: 12px 5px; }";
-    html += ".btn-timer { background-color: #f1c40f; color: #333; }";
-    html += ".btn-auto-on { background-color: #1abc9c; color: white; flex: 1 1 45%; }";
-    html += ".btn-auto-off { background-color: #95a5a6; color: white; flex: 1 1 45%; }";
-    html += ".info-row { display: flex; justify-content: space-between; font-size: 0.9rem; margin: 5px 0; color: #555; }";
-    html += "canvas { max-width: 100%; height: auto; }";
-    html += "</style>";
-    html += "</head><body>";
-    
-    // --- LINHA 1: Ligar / Desligar ---
-    html += "<div class='card'><h2>Energia</h2>";
-    html += "<div class='btn-group'>";
-    html += "<button class='btn-on' onclick='cmd(\"ON\")'>LIGAR</button>";
-    html += "<button class='btn-off' onclick='cmd(\"OFF\")'>DESLIGAR</button>";
-    html += "</div></div>";
-
-    // --- LINHA 2: Temperaturas Manuais ---
-    html += "<div class='card'><h2>Temperatura Manual</h2>";
-    html += "<div class='btn-group'>";
-    html += "<button class='btn-temp' onclick='cmd(\"T18\")'>18&deg;</button>";
-    html += "<button class='btn-temp' onclick='cmd(\"T22\")'>22&deg;</button>";
-    html += "<button class='btn-temp' onclick='cmd(\"T23\")'>23&deg;</button>";
-    html += "<button class='btn-temp' onclick='cmd(\"T24\")'>24&deg;</button>";
-    html += "<button class='btn-temp' onclick='cmd(\"T25\")'>25&deg;</button>";
-    html += "</div></div>";
-
-    // --- LINHA 3: Ventilação ---
-    html += "<div class='card'><h2>Velocidade do Vento</h2>";
-    html += "<div class='btn-group'>";
-    html += "<button class='btn-fan' onclick='cmd(\"FAN1\")'>N1</button>";
-    html += "<button class='btn-fan' onclick='cmd(\"FAN2\")'>N2</button>";
-    html += "<button class='btn-fan' onclick='cmd(\"FAN3\")'>N3</button>";
-    html += "<button class='btn-fan' onclick='cmd(\"FAN4\")'>N4</button>";
-    html += "<button class='btn-fan' onclick='cmd(\"FAN5\")'>N5</button>";
-    html += "</div></div>";
-
-    // --- LINHA 4: Timers ---
-    html += "<div class='card'><h2>Timer de Desligamento</h2>";
-    html += "<div class='btn-group'>";
-    html += "<button class='btn-timer' onclick='cmd(\"TIMER_30M\")'>30 Min</button>";
-    html += "<button class='btn-timer' onclick='cmd(\"TIMER_1H\")'>1 Hora</button>";
-    html += "<button class='btn-timer' onclick='cmd(\"TIMER_8H\")'>8 Horas</button>";
-    html += "</div></div>";
-
-    // --- LINHA 5: Controle Automático ---
-    html += "<div class='card'><h2>Termostato Inteligente</h2>";
-    html += "<div class='info-row'><span>Modo Auto:</span><b id='auto_mode'>--</b></div>";
-    html += "<div class='info-row'><span>Alvo Atual:</span><b id='alvo'>-- &deg;C</b></div>";
-    html += "<div class='info-row'><span>Ação do Robô:</span><b id='auto_status'>--</b></div>";
-    
-    html += "<div class='btn-group' style='margin-top:15px;'>";
-    html += "<button class='btn-temp' onclick='cmd(\"ALVO_18\")'>18&deg;</button>";
-    html += "<button class='btn-temp' onclick='cmd(\"ALVO_22\")'>22&deg;</button>";
-    html += "<button class='btn-temp' onclick='cmd(\"ALVO_23\")'>23&deg;</button>";
-    html += "<button class='btn-temp' onclick='cmd(\"ALVO_24\")'>24&deg;</button>";
-    html += "<button class='btn-temp' onclick='cmd(\"ALVO_25\")'>25&deg;</button>";
-    html += "</div>";
-    
-    html += "<div class='btn-group' style='margin-top:10px;'>";
-    html += "<button class='btn-auto-on' onclick='cmd(\"AUTO_ON\")'>LIGAR AUTO</button>";
-    html += "<button class='btn-auto-off' onclick='cmd(\"AUTO_OFF\")'>DESLIGAR AUTO</button>";
-    html += "</div></div>";
-
-    // --- CABEÇALHO ---
-    html += "<div class='card'>";
-    html += "<h2><span id='temp'>--</span>&deg;C | <span id='umid'>--</span>%</h2>";
-    html += "<p style='margin:5px 0'>Ar Condicionado: <b id='status'>--</b></p>";
-    html += "</div>";
-
-    // --- GRÁFICO (Últimos 20 min) ---
-    html += "<div class='card'><h2>Histórico (20 min)</h2>";
-    html += "<canvas id='graficoTemp'></canvas>";
-    html += "</div>";
-
-    // --- SCRIPTS DO DASHBOARD ---
-    html += "<script>";
-    html += "let grafico;";
-    html += "function initChart() {";
-    html += "  const ctx = document.getElementById('graficoTemp').getContext('2d');";
-    html += "  grafico = new Chart(ctx, {";
-    html += "    type: 'line',";
-    html += "    data: { labels: [], datasets: [{ label: 'Temp (°C)', data: [], borderColor: '#e74c3c', backgroundColor: 'rgba(231, 76, 60, 0.2)', borderWidth: 2, fill: true, tension: 0.3 }] },";
-    html += "    options: { responsive: true, animation: false, scales: { y: { suggestedMin: 20, suggestedMax: 30 } }, plugins: { legend: { display: false } } }";
-    html += "  });";
-    html += "}";
-
-    html += "function cmd(c) { fetch('/cmd?c='+c).then(r=>r.text()).then(t=>atualizar()); }";
-    
-    html += "function atualizar() {";
-    html += "  fetch('/api/status').then(r=>r.json()).then(d=>{";
-    html += "    document.getElementById('temp').innerText = parseFloat(d.temp_real).toFixed(1);";
-    html += "    document.getElementById('umid').innerText = parseFloat(d.umidade_real).toFixed(0);";
-    html += "    document.getElementById('status').innerText = d.ac_state;";
-    html += "    document.getElementById('auto_mode').innerText = d.auto_mode ? 'LIGADO' : 'DESLIGADO';";
-    html += "    document.getElementById('alvo').innerText = d.auto_alvo;";
-    html += "    document.getElementById('auto_status').innerText = d.auto_status;";
-    
-    // Atualiza o gráfico se houver dados
-    html += "    if(d.historico && d.historico.length > 0) {";
-    html += "       let labels = Array.from({length: d.historico.length}, (_, i) => `-${d.historico.length - i}m`);";
-    html += "       labels[labels.length-1] = 'Agora';";
-    html += "       grafico.data.labels = labels;";
-    html += "       grafico.data.datasets[0].data = d.historico;";
-    html += "       grafico.update();";
-    html += "    }";
-    html += "  }).catch(e=>console.log('Erro'));";
-    html += "}";
-    
-    html += "window.onload = function() { initChart(); atualizar(); setInterval(atualizar, 2000); };";
-    html += "</script>";
-    
-    html += "</body></html>";
-    server.send(200, "text/html", html); 
+    server.send_P(200, "text/html", webpage_html); 
 } 
  
 // --- ENDPOINT API JSON --- 
@@ -208,7 +85,24 @@ void handleApiStatus() {
     doc["status"] = "success"; 
     doc["temp_real"] = tempReal; 
     doc["umidade_real"] = umidadeReal; 
-    doc["ac_state"] = ac.toString(); 
+    
+    // Estado do Ar Condicionado estruturado para o JavaScript
+    JsonObject acState = doc["ac_state"].to<JsonObject>();
+    acState["power"] = ac.getPower();
+    acState["mode"] = ac.getMode();
+    acState["temp"] = ac.getTemp();
+    acState["fan"] = ac.getFan();
+    acState["swingv"] = ac.getSwingVertical();
+    acState["swingh"] = ac.getSwingHorizontal();
+    acState["turbo"] = ac.getTurbo();
+    acState["econo"] = ac.getEcono();
+    acState["health"] = ac.getHealth();
+    acState["light"] = ac.getLight();
+    acState["quiet"] = ac.getQuiet();
+    acState["timer_on"] = ac.getOnTimer();
+    acState["timer_off"] = ac.getOffTimer();
+    
+    doc["ac_state_str"] = ac.toString(); // Retrocompatibilidade se necessário
     doc["auto_mode"] = autoThermostat;
     doc["auto_alvo"] = tempAlvo;
     doc["auto_status"] = estadoAuto;
@@ -228,40 +122,115 @@ void handleApiStatus() {
     server.send(200, "application/json", response); 
 } 
  
+String getPublicIP() {
+    WiFiClient client;
+    HTTPClient http;
+    String ip = "";
+    if (http.begin(client, "http://ipv4.icanhazip.com/")) {
+        int code = http.GET();
+        if (code > 0) {
+            ip = http.getString();
+            ip.trim();
+        }
+        http.end();
+    }
+    return ip;
+}
+
+void handleApiPublicIp() {
+    JsonDocument doc;
+    doc["public_ip"] = getPublicIP();
+    String res;
+    serializeJson(doc, res);
+    server.send(200, "application/json", res);
+}
+ 
 // --- PROCESSADOR DE COMANDOS --- 
 void handleCommand() { 
     if (server.hasArg("c")) { 
         String c = server.arg("c"); 
-        
         bool sendIr = false;
-        if (c == "ON") { ac.on(); isAcOn = true; sendIr = true; } 
-        else if (c == "OFF") { ac.off(); isAcOn = false; sendIr = true; } 
-        else if (c.startsWith("T")) { ac.setTemp(c.substring(1).toInt()); ac.on(); isAcOn = true; sendIr = true; }
-        else if (c == "AUTO_ON") { autoThermostat = true; estadoAuto = "Avaliando..."; forcarEnvioAuto = true; }
-        else if (c == "AUTO_OFF") { autoThermostat = false; estadoAuto = "Aguardando"; }
-        else if (c == "ALVO_22") { tempAlvo = 22.0; forcarEnvioAuto = true; }
-        else if (c == "ALVO_24") { tempAlvo = 24.0; forcarEnvioAuto = true; }
-        else if (c == "ALVO_25") { tempAlvo = 25.0; forcarEnvioAuto = true; }
-        else if (c == "ALVO_26") { tempAlvo = 26.0; forcarEnvioAuto = true; }
         
-        // Ventilação
-        else if (c.startsWith("FAN")) { 
-            int fanSpeed = c.substring(3).toInt(); 
-            ac.setFan(fanSpeed); // Assume que a biblioteca TCL suporta 1-5. Se não, ajustar depois.
+        // Energia
+        if (c == "ON") { ac.on(); sendIr = true; } 
+        else if (c == "OFF") { ac.off(); sendIr = true; } 
+        else if (c == "TOGGLE_POWER") {
+            if (ac.getPower()) ac.off();
+            else ac.on();
+            sendIr = true;
+        }
+        
+        // Temperatura Manual (Suporta decimais ex: T22.5)
+        else if (c.startsWith("T") && !c.startsWith("TIMER")) { 
+            ac.setTemp(c.substring(1).toFloat()); 
+            ac.on(); 
             sendIr = true; 
         }
         
-        // Timers (Isso dependerá muito de como a biblioteca do seu TCL trata timers)
-        // Se a biblioteca não suportar, teremos que fazer um timer por software no próprio NodeMCU
-        // Por hora, vou deixar os comandos preparados para a gente implementar.
-        else if (c == "TIMER_30M") { /* TODO: Implementar Timer 30m */ }
-        else if (c == "TIMER_1H") { /* TODO: Implementar Timer 1h */ }
-        else if (c == "TIMER_8H") { /* TODO: Implementar Timer 8h */ }
+        // Modos de Operação
+        else if (c == "MODE_COOL") { ac.setMode(kTcl112AcCool); ac.on(); sendIr = true; }
+        else if (c == "MODE_HEAT") { ac.setMode(kTcl112AcHeat); ac.on(); sendIr = true; }
+        else if (c == "MODE_DRY")  { ac.setMode(kTcl112AcDry); ac.on(); sendIr = true; }
+        else if (c == "MODE_FAN")  { ac.setMode(kTcl112AcFan); ac.on(); sendIr = true; }
+        else if (c == "MODE_AUTO") { ac.setMode(kTcl112AcAuto); ac.on(); sendIr = true; }
+        
+        // Velocidade do Ventilador
+        else if (c == "FAN_AUTO") { ac.setFan(kTcl112AcFanAuto); sendIr = true; }
+        else if (c == "FAN_MIN")  { ac.setFan(kTcl112AcFanMin); sendIr = true; }
+        else if (c == "FAN_LOW")  { ac.setFan(kTcl112AcFanLow); sendIr = true; }
+        else if (c == "FAN_MED")  { ac.setFan(kTcl112AcFanMed); sendIr = true; }
+        else if (c == "FAN_HIGH") { ac.setFan(kTcl112AcFanHigh); sendIr = true; }
+        
+        // Direcionamento Vertical (Swing V)
+        else if (c == "SWING_V_AUTO")    { ac.setSwingVertical(kTcl112AcSwingVOn); sendIr = true; }
+        else if (c == "SWING_V_OFF")     { ac.setSwingVertical(kTcl112AcSwingVOff); sendIr = true; }
+        else if (c == "SWING_V_HIGHEST") { ac.setSwingVertical(kTcl112AcSwingVHighest); sendIr = true; }
+        else if (c == "SWING_V_HIGH")    { ac.setSwingVertical(kTcl112AcSwingVHigh); sendIr = true; }
+        else if (c == "SWING_V_MID")     { ac.setSwingVertical(kTcl112AcSwingVMiddle); sendIr = true; }
+        else if (c == "SWING_V_LOW")     { ac.setSwingVertical(kTcl112AcSwingVLow); sendIr = true; }
+        else if (c == "SWING_V_LOWEST")  { ac.setSwingVertical(kTcl112AcSwingVLowest); sendIr = true; }
+        
+        // Direcionamento Horizontal (Swing H)
+        else if (c == "SWING_H_ON")  { ac.setSwingHorizontal(true); sendIr = true; }
+        else if (c == "SWING_H_OFF") { ac.setSwingHorizontal(false); sendIr = true; }
+        
+        // Funções Especiais
+        else if (c == "TURBO_ON")   { ac.setTurbo(true); sendIr = true; }
+        else if (c == "TURBO_OFF")  { ac.setTurbo(false); sendIr = true; }
+        else if (c == "ECO_ON")     { ac.setEcono(true); sendIr = true; }
+        else if (c == "ECO_OFF")    { ac.setEcono(false); sendIr = true; }
+        else if (c == "HEALTH_ON")  { ac.setHealth(true); sendIr = true; }
+        else if (c == "HEALTH_OFF") { ac.setHealth(false); sendIr = true; }
+        else if (c == "LIGHT_ON")   { ac.setLight(true); sendIr = true; }
+        else if (c == "LIGHT_OFF")  { ac.setLight(false); sendIr = true; }
+        else if (c == "QUIET_ON")   { ac.setQuiet(true); sendIr = true; }
+        else if (c == "QUIET_OFF")  { ac.setQuiet(false); sendIr = true; }
+        
+        // Temporizadores (Timers)
+        else if (c.startsWith("TIMER_ON_")) {
+            if (c == "TIMER_ON_OFF") ac.setOnTimer(0);
+            else ac.setOnTimer(c.substring(9).toInt());
+            sendIr = true;
+        }
+        else if (c.startsWith("TIMER_OFF_")) {
+            if (c == "TIMER_OFF_OFF") ac.setOffTimer(0);
+            else ac.setOffTimer(c.substring(10).toInt());
+            sendIr = true;
+        }
+        
+        // Termostato Inteligente (Controle por software no NodeMCU)
+        else if (c == "AUTO_ON")  { autoThermostat = true; estadoAuto = "Avaliando..."; forcarEnvioAuto = true; }
+        else if (c == "AUTO_OFF") { autoThermostat = false; estadoAuto = "Aguardando"; }
+        else if (c.startsWith("ALVO_")) { 
+            tempAlvo = c.substring(5).toFloat(); 
+            forcarEnvioAuto = true; 
+        }
  
         if (sendIr) {
             digitalWrite(LED_PLACA, LOW); 
             ac.send(); 
             digitalWrite(LED_PLACA, HIGH); 
+            isAcOn = ac.getPower(); // Sincroniza o estado virtual de energia para o termostato automático
         }
  
         server.sendHeader("Location", "/"); 
@@ -278,22 +247,52 @@ void setup() {
      
     dht.begin(); 
     ac.begin(); 
+    ac.setModel(tcl_ac_remote_model_t::TAC09CHSD); // Configura modelo completo da TCL com todos os botoes
  
-    WiFi.begin(ssid, password); 
-    while (WiFi.status() != WL_CONNECTED) { delay(500); Serial.print("."); } 
-     
-    if (MDNS.begin("meuar")) { 
-        Serial.println("Acesse: `http://meuar.local` "); 
-    } 
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(ssid, password);
+    unsigned long wifiStart = millis();
+    while (WiFi.status() != WL_CONNECTED && millis() - wifiStart < 15000) { delay(500); Serial.print("."); }
+    if (WiFi.status() == WL_CONNECTED) {
+        Serial.print("\nWiFi OK, IP: ");
+        Serial.println(WiFi.localIP());
+        if (MDNS.begin("meuar")) {
+            Serial.println("mDNS OK: http://meuar.local");
+        }
+        String wan = getPublicIP();
+        if (wan.length() > 0) {
+            Serial.print("IP Público: ");
+            Serial.println(wan);
+        } else {
+            Serial.println("IP Público: indisponível");
+        }
+    } else {
+        Serial.println("\nWiFi falhou, iniciando AP");
+        WiFi.mode(WIFI_AP);
+        String apName = String("MEUAR-SETUP-") + String(ESP.getChipId(), HEX);
+        WiFi.softAP(apName.c_str());
+        Serial.print("AP SSID: ");
+        Serial.println(apName);
+        Serial.print("AP IP: ");
+        Serial.println(WiFi.softAPIP());
+    }
  
     server.on("/", handleRoot); 
     server.on("/cmd", handleCommand); 
     server.on("/api/status", handleApiStatus); 
+    server.on("/api/public_ip", handleApiPublicIp);
     server.begin(); 
     Serial.println("Sistema Pronto!"); 
 } 
  
 void loop() { 
+    // Reinicializa o ESP a cada 12 horas para garantir estabilidade e limpar a RAM
+    if (millis() >= 43200000) {
+        Serial.println("[SISTEMA] Reiniciando ESP8266 programado a cada 12 horas...");
+        delay(200);
+        ESP.restart();
+    }
+
     server.handleClient(); 
     MDNS.update(); 
     

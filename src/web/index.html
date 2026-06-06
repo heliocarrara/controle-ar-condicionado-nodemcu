@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TAC09CHSD AC</title>
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- HEADER -->
+    <header class="app-header">
+      <button class="btn-back" aria-label="Voltar">
+        <i data-lucide="chevron-left"></i>
+      </button>
+      <h1>TAC09CHSD AC</h1>
+      <div class="header-placeholder"></div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL (COM ABAS) -->
+    <main class="app-content">
+
+      <!-- ABA 1: INÍCIO (PAINEL PRINCIPAL) -->
+      <div id="tab-inicio" class="tab-pane active">
+        
+        <!-- Cards de Leitura Rápida -->
+        <div class="info-row-top">
+          <div class="info-card">
+            <i data-lucide="home" class="info-icon"></i>
+            <span class="info-label">AMBIENTE:</span>
+            <span class="info-val" id="room-temp">--</span>
+            <span class="info-unit">&deg;C</span>
+          </div>
+          <div class="info-card">
+            <i data-lucide="map-pin" class="info-icon"></i>
+            <span class="info-label">JD. ITÁLIA:</span>
+            <span class="info-val" id="cuiaba-temp">--</span>
+            <span class="info-unit">&deg;C</span>
+          </div>
+        </div>
+
+        <!-- Widget Central de Temperatura Alvo -->
+        <div class="temp-screen-card">
+          <div class="screen-status-indicator">
+            <span class="led-dot" id="ac-led-dot"></span>
+          </div>
+          
+          <div class="temp-control-inner">
+            <button class="btn-dial" onclick="adjustTemp(-0.5)" aria-label="Diminuir Temperatura">
+              <i data-lucide="minus"></i>
+            </button>
+            <div class="temp-display-value">
+              <span id="target-temp">22</span>
+              <span class="degree-symbol">&deg;C</span>
+            </div>
+            <button class="btn-dial" onclick="adjustTemp(0.5)" aria-label="Aumentar Temperatura">
+              <i data-lucide="plus"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Grade de Modos de Operação -->
+        <div class="modes-row">
+          <button class="btn-mode-rect" id="mode-cool" onclick="sendCmd('MODE_COOL')">
+            <i data-lucide="snowflake"></i>
+            <span>FRIO</span>
+          </button>
+          <button class="btn-mode-rect" id="mode-heat" onclick="sendCmd('MODE_HEAT')">
+            <i data-lucide="sun"></i>
+            <span>CALOR</span>
+          </button>
+          <button class="btn-mode-rect" id="mode-dry" onclick="sendCmd('MODE_DRY')">
+            <i data-lucide="droplet"></i>
+            <span>SECO</span>
+          </button>
+          <button class="btn-mode-rect" id="mode-fan" onclick="sendCmd('MODE_FAN')">
+            <i data-lucide="fan"></i>
+            <span>VENT.</span>
+          </button>
+          <button class="btn-mode-rect" id="mode-auto" onclick="sendCmd('MODE_AUTO')">
+            <i data-lucide="sparkles"></i>
+            <span>AUTO</span>
+          </button>
+        </div>
+
+        <!-- Velocidade da Ventoinha (Largura Total) -->
+        <div class="control-box fan-box-full">
+          <h3><i data-lucide="wind" class="box-title-icon"></i> FAN VELOCIDADE</h3>
+          <div class="fan-row-full">
+            <button class="btn-fan-mock" id="fan-auto" onclick="sendCmd('FAN_AUTO')">AUTO</button>
+            <button class="btn-fan-mock" id="fan-min" onclick="sendCmd('FAN_MIN')">SILEN.</button>
+            <button class="btn-fan-mock" id="fan-low" onclick="sendCmd('FAN_LOW')">BAIXA</button>
+            <button class="btn-fan-mock" id="fan-med" onclick="sendCmd('FAN_MED')">MÉDIA</button>
+            <button class="btn-fan-mock" id="fan-high" onclick="sendCmd('FAN_HIGH')">ALTA</button>
+          </div>
+        </div>
+
+        <!-- Funções Especiais -->
+        <div class="specials-row">
+          <button class="btn-special-rect" id="btn-eco" onclick="toggleSpecial('eco')">
+            <i data-lucide="leaf"></i>
+            <span>ECO</span>
+          </button>
+          <button class="btn-special-rect" id="btn-health" onclick="toggleSpecial('health')">
+            <i data-lucide="shield"></i>
+            <span>SAÚDE</span>
+          </button>
+          <button class="btn-special-rect" id="btn-turbo" onclick="toggleSpecial('turbo')">
+            <i data-lucide="zap"></i>
+            <span>TURBO</span>
+          </button>
+          <button class="btn-special-rect" id="btn-light" onclick="toggleSpecial('light')">
+            <i data-lucide="lightbulb"></i>
+            <span>LUZ</span>
+          </button>
+        </div>
+
+        <!-- Botão Ligar/Desligar Grande Vermelho -->
+        <div class="power-button-container">
+          <button class="btn-power-large" id="btn-power" onclick="togglePower()">
+            <i data-lucide="power"></i>
+            <span>LIGAR / DESLIGAR</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ABA 2: TIMER -->
+      <div id="tab-timer" class="tab-pane">
+        <div class="tab-title">
+          <h2>Temporizadores</h2>
+          <p>Agende o ligamento ou desligamento automático do aparelho.</p>
+        </div>
+
+        <div class="card-timer-container">
+          <div class="timer-card-modern">
+            <div class="timer-card-header">
+              <i data-lucide="play-circle" class="timer-card-icon green"></i>
+              <h3>LIGAR APARELHO EM:</h3>
+            </div>
+            <div class="timer-card-body">
+              <span class="timer-display-time" id="timer-on-val">Desativado</span>
+              <div class="timer-adjust-row">
+                <button class="btn-adjust" onclick="adjustTimer('ON', -20)">-20m</button>
+                <button class="btn-adjust" onclick="adjustTimer('ON', 20)">+20m</button>
+                <button class="btn-clear-timer" onclick="clearTimer('ON')"><i data-lucide="trash-2"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="timer-card-modern">
+            <div class="timer-card-header">
+              <i data-lucide="stop-circle" class="timer-card-icon red"></i>
+              <h3>DESLIGAR APARELHO EM:</h3>
+            </div>
+            <div class="timer-card-body">
+              <span class="timer-display-time" id="timer-off-val">Desativado</span>
+              <div class="timer-adjust-row">
+                <button class="btn-adjust" onclick="adjustTimer('OFF', -20)">-20m</button>
+                <button class="btn-adjust" onclick="adjustTimer('OFF', 20)">+20m</button>
+                <button class="btn-clear-timer" onclick="clearTimer('OFF')"><i data-lucide="trash-2"></i></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABA 3: AJUSTES -->
+      <div id="tab-ajustes" class="tab-pane">
+        <div class="tab-title">
+          <h2>Termostato Inteligente</h2>
+          <p>Automação por software para manter a temperatura do quarto estável.</p>
+        </div>
+
+        <div class="thermostat-card-modern">
+          <div class="therm-status-header">
+            <div class="therm-status-info">
+              <span class="lbl">Modo Termostato:</span>
+              <span class="badge" id="thermostat-mode-badge">DESLIGADO</span>
+            </div>
+            <div class="therm-status-info">
+              <span class="lbl">Alvo Definido:</span>
+              <span class="val" id="thermostat-target-val">-- &deg;C</span>
+            </div>
+          </div>
+          
+          <div class="therm-status-message">
+            <span class="lbl">Ação Atual:</span>
+            <span class="status-desc" id="thermostat-status-desc">Aguardando</span>
+          </div>
+
+          <div class="therm-adjust-section">
+            <span class="section-label">Definir Temperatura Alvo</span>
+            <div class="btn-group-auto">
+              <button class="btn-auto-temp" id="btn-alvo-18" onclick="sendCmd('ALVO_18')">18&deg;</button>
+              <button class="btn-auto-temp" id="btn-alvo-22" onclick="sendCmd('ALVO_22')">22&deg;</button>
+              <button class="btn-auto-temp" id="btn-alvo-23" onclick="sendCmd('ALVO_23')">23&deg;</button>
+              <button class="btn-auto-temp" id="btn-alvo-24" onclick="sendCmd('ALVO_24')">24&deg;</button>
+              <button class="btn-auto-temp" id="btn-alvo-25" onclick="sendCmd('ALVO_25')">25&deg;</button>
+            </div>
+          </div>
+
+          <div class="btn-auto-toggle-row">
+            <button class="btn-auto-on" id="btn-auto-on" onclick="sendCmd('AUTO_ON')">Ativar Termostato</button>
+            <button class="btn-auto-off" id="btn-auto-off" onclick="sendCmd('AUTO_OFF')">Desativar</button>
+          </div>
+        </div>
+
+        <!-- Oscilação (Movida da aba Início) -->
+        <div class="control-box swing-box-ajustes">
+          <h3><i data-lucide="sliders" class="box-title-icon"></i> OSCILAÇÃO DO VENTO</h3>
+          <div class="swing-buttons-row">
+            <button class="btn-swing-mock" id="btn-swingv" onclick="toggleSwingV()">
+              <i data-lucide="arrow-up-down"></i>
+              VERT (VERTICAL)
+            </button>
+            <button class="btn-swing-mock" id="btn-swingh" onclick="toggleSwingH()">
+              <i data-lucide="arrow-left-right"></i>
+              HORIZ (LATERAL)
+            </button>
+          </div>
+        </div>
+
+        <!-- Informações de Conexão -->
+        <div class="device-info-card">
+          <div class="info-row-new">
+            <span>Status da Conexão:</span>
+            <span class="badge" id="conn-text-badge">CONECTADO</span>
+          </div>
+          <div class="info-row-new">
+            <span>ID do Dispositivo:</span>
+            <span class="value-small">TAC09CHSD_0921</span>
+          </div>
+        </div>
+
+        <!-- Histórico Gráfico -->
+        <div class="chart-card-modern">
+          <h3><i data-lucide="trending-up" class="box-title-icon"></i> HISTÓRICO DE TEMPERATURA</h3>
+          <div class="chart-wrapper">
+            <canvas id="tempChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- NAVEGAÇÃO INFERIOR -->
+    <nav class="app-navbar">
+      <button class="nav-item active" id="nav-inicio" onclick="switchTab('inicio')">
+        <i data-lucide="home"></i>
+        <span>INÍCIO</span>
+      </button>
+      <button class="nav-item" id="nav-timer" onclick="switchTab('timer')">
+        <i data-lucide="calendar"></i>
+        <span>TIMER</span>
+      </button>
+      <button class="nav-item" id="nav-ajustes" onclick="switchTab('ajustes')">
+        <i data-lucide="settings"></i>
+        <span>AJUSTES</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
