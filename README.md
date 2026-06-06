@@ -57,6 +57,10 @@ Para detalhes sobre os endpoints, métodos e parâmetros suportados para integra
 
 ---
 
+<img width="949" height="983" alt="image" src="https://github.com/user-attachments/assets/d769ce25-ecd9-4460-800a-54d66298d9f2" />
+<img width="967" height="983" alt="image" src="https://github.com/user-attachments/assets/e8e1422c-7197-44fb-a012-42f8ddba1e7f" />
+
+
 ## ⚙️ Como Usar
 
 1. Clone o repositório.
