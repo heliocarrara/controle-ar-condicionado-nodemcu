@@ -17,7 +17,7 @@ Este projeto permite controlar um ar condicionado da marca TCL utilizando um mic
 
 ---
 
-## 🖥️ Arquitetura do Frontend & Automatação de Build (Transparente)
+## 🖥️ Arquitetura do Frontend & Automação de Build (Transparente)
 
 Para manter o desenvolvimento limpo e fácil de atualizar, a interface Web foi separada do arquivo de código-fonte C++ (`src/main.cpp`). O fluxo é estruturado da seguinte forma:
 
