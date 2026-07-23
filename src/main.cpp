@@ -52,15 +52,21 @@ String ultimoStatusPing = "WhatsApp desativado";
 // --- LÓGICA DO SENSOR --- 
 void lerSensor() { 
     static unsigned long ultimaLeitura = 0; 
-    if (millis() - ultimaLeitura > 2000) { // DHT22 precisa de 2s 
-        float t = dht.readTemperature(); 
-        float h = dht.readHumidity(); 
+    if (millis() - ultimaLeitura > 2000) {
+        float t = NAN, h = NAN;
+        for (int tentativa = 0; tentativa < 3; tentativa++) {
+            t = dht.readTemperature(); 
+            h = dht.readHumidity();
+            if (!isnan(t) && !isnan(h)) break;
+            delay(50);
+        }
         if (!isnan(t) && !isnan(h)) { 
             tempReal = t; 
             umidadeReal = h; 
             Serial.println("[DHT22] Temp: " + String(t, 1) + "C | Umidade: " + String(h, 0) + "%");
         } else {
-            Serial.println("[DHT22] Erro: Falha ao ler do sensor! Verifique os fios e o pino.");
+            Serial.printf("[DHT22] Falha apos 3 tentativas. Pino: %d | VCC: %.1fV | WiFi: %s\n",
+                DHTPIN, 3.3, WiFi.status() == WL_CONNECTED ? "OK" : "OFF");
         }
         ultimaLeitura = millis(); 
     } 
