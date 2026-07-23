@@ -820,6 +820,18 @@ void handleCommand() {
                 Serial.println("[BOT] URL atualizada para: " + whatsappServerUrl);
             }
         }
+        else if (c == "RESTART") {
+            JsonDocument doc;
+            doc["status"] = "ok";
+            doc["message"] = "Reiniciando...";
+            String response;
+            serializeJson(doc, response);
+            server.send(200, "application/json", response);
+            Serial.println("[SISTEMA] Reiniciando por comando do usuario...");
+            delay(500);
+            ESP.restart();
+            return;
+        }
  
         if (sendIr) {
             digitalWrite(LED_PLACA, LOW); 

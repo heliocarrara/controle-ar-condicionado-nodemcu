@@ -845,6 +845,30 @@ body {
   gap: 0.625rem;
 }
 
+.btn-restart {
+  width: 100%;
+  background-color: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--color-power-red);
+  padding: 0.75rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-family: var(--font-family);
+  transition: var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+.btn-restart:hover {
+  background-color: rgba(239, 68, 68, 0.15);
+}
+.btn-restart:active {
+  transform: scale(0.97);
+}
+
 </style>
 </head>
 <body>
@@ -1090,6 +1114,7 @@ body {
             <span>Status da Conexão:</span>
             <span class="badge" id="conn-text-badge">CONECTADO</span>
           </div>
+          <button class="btn-restart" onclick="sendCmd('RESTART')">🔄 Reiniciar NodeMCU</button>
         </div>
 
         <!-- Histórico Gráfico -->
