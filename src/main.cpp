@@ -81,7 +81,9 @@ void lerSensor() {
  
 // --- PÁGINA WEB (INTERFACE) --- 
 void handleRoot() { 
-    server.send_P(200, "text/html", webpage_html); 
+    server.setContentLength(CONTENT_LENGTH_UNKNOWN);
+    server.send(200, "text/html", "");
+    server.sendContent_P(webpage_html);
 } 
  
 // --- HELPERS ---
