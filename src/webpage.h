@@ -475,6 +475,36 @@ body {
   font-size: 1.3rem;
 }
 
+/* Presets rápidos */
+.presets-row {
+  display: flex;
+  gap: 0.375rem;
+  width: 100%;
+}
+
+.btn-preset {
+  flex: 1;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  padding: 0.75rem 0.25rem;
+  font-family: var(--font-family);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  cursor: pointer;
+  box-shadow: var(--shadow-button);
+  transition: var(--transition-normal);
+  text-align: center;
+  line-height: 1.2;
+}
+.btn-preset:hover {
+  background-color: #e2e8f0;
+}
+.btn-preset:active {
+  box-shadow: var(--shadow-button-active);
+}
+
 /* RAM card with bar */
 .ram-card {
   flex-direction: column;
@@ -994,6 +1024,13 @@ body {
             <span>⏻</span>
             <span>LIGAR / DESLIGAR</span>
           </button>
+        </div>
+
+        <!-- Presets Rápidos -->
+        <div class="presets-row">
+          <button class="btn-preset" onclick="sendCmd('P24_MED')">24°C Média</button>
+          <button class="btn-preset" onclick="sendCmd('P23_MED')">23°C Média</button>
+          <button class="btn-preset" onclick="sendCmd('P22_LOW')">22°C Baixa</button>
         </div>
 
       </div>

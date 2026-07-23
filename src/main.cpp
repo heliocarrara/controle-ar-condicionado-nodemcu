@@ -797,6 +797,11 @@ void handleCommand() {
             sendIr = true;
         }
         
+        // Presets rápidos
+        else if (c == "P24_MED") { ac.setTemp(24); ac.setFan(kTcl112AcFanMed); ac.on(); sendIr = true; }
+        else if (c == "P23_MED") { ac.setTemp(23); ac.setFan(kTcl112AcFanMed); ac.on(); sendIr = true; }
+        else if (c == "P22_LOW") { ac.setTemp(22); ac.setFan(kTcl112AcFanLow); ac.on(); sendIr = true; }
+
         // Termostato Inteligente (Controle por software no NodeMCU)
         else if (c == "AUTO_ON")  { autoThermostat = true; estadoAuto = "Avaliando..."; forcarEnvioAuto = true; }
         else if (c == "AUTO_OFF") { autoThermostat = false; estadoAuto = "Aguardando"; }
