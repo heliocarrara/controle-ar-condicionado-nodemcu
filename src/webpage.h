@@ -13,14 +13,8 @@ const char webpage_html[] PROGMEM = R"rawliteral(
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TAC09CHSD AC</title>
-  <!-- Google Fonts: Inter -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-/* TAC09CHSD AC - Mockup Theme CSS */
+/* TAC09CHSD AC - Theme CSS (zero external dependencies) */
 
 :root {
   --bg-app: #f1f5f9;
@@ -35,9 +29,8 @@ const char webpage_html[] PROGMEM = R"rawliteral(
   --text-muted: #64748b;
   --bg-card: #f8fafc;
   --border-light: #cbd5e1;
-  --font-family: 'Inter', sans-serif;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   
-  /* Neumorphic / Soft Shadows */
   --shadow-out: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
   --shadow-button: 0 2px 4px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.6);
   --shadow-button-active: inset 0 2px 4px rgba(0, 0, 0, 0.15);
@@ -62,7 +55,6 @@ body {
   padding: 0;
 }
 
-/* App Viewport Container (Simulates Mobile) */
 .app-container {
   width: 100%;
   max-width: 430px;
@@ -84,7 +76,6 @@ body {
   }
 }
 
-/* Header */
 .app-header {
   background-color: var(--bg-dark-header);
   color: white;
@@ -105,37 +96,17 @@ body {
   text-transform: uppercase;
 }
 
-.btn-back {
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  transition: var(--transition-normal);
-}
-
-.btn-back:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
 .header-placeholder {
   width: 32px;
 }
 
-/* Main Content Area */
 .app-content {
   flex: 1;
   overflow-y: auto;
   padding: 1rem;
-  padding-bottom: 1.5rem; /* Removida a margem absoluta, agora usa fluxo flex */
+  padding-bottom: 1.5rem;
 }
 
-/* Tab Panes */
 .tab-pane {
   display: none;
   flex-direction: column;
@@ -167,10 +138,9 @@ body {
   color: var(--text-muted);
 }
 
-/* Info Cards (Ambient & City) */
 .info-row-top {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
   width: 100%;
 }
 
@@ -179,40 +149,33 @@ body {
   background-color: var(--bg-card);
   border: 1px solid var(--border-light);
   border-radius: 12px;
-  padding: 0.625rem 0.5rem;
+  padding: 0.625rem 0.4rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.375rem;
+  gap: 0.25rem;
   box-shadow: var(--shadow-button);
 }
 
-.info-icon {
-  width: 14px;
-  height: 14px;
-  color: var(--text-muted);
-}
-
 .info-label {
-  font-size: 0.675rem;
+  font-size: 0.6rem;
   font-weight: 600;
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .info-val {
   font-size: 0.8rem;
   font-weight: 700;
   color: var(--text-dark);
-  margin-left: 0.125rem;
 }
 
 .info-unit {
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   font-weight: 700;
   color: var(--text-muted);
 }
 
-/* Sage Green Target Temperature Display */
 .temp-screen-card {
   background-color: var(--bg-screen);
   border: 1.5px solid var(--border-screen);
@@ -265,6 +228,9 @@ body {
   cursor: pointer;
   color: var(--text-screen);
   transition: var(--transition-normal);
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--font-family);
 }
 
 .btn-dial:hover {
@@ -276,10 +242,10 @@ body {
   background-color: rgba(0, 0, 0, 0.12);
 }
 
-.btn-dial i {
-  width: 22px;
-  height: 22px;
-  stroke-width: 2.5px;
+.dial-symbol {
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .temp-display-value {
@@ -302,7 +268,6 @@ body {
   margin-left: 0.125rem;
 }
 
-/* Operation Mode Rectangular Buttons Row */
 .modes-row {
   display: flex;
   gap: 0.375rem;
@@ -319,10 +284,11 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.375rem;
+  gap: 0.25rem;
   cursor: pointer;
   box-shadow: var(--shadow-button);
   transition: var(--transition-normal);
+  font-family: var(--font-family);
 }
 
 .btn-mode-rect:hover {
@@ -333,38 +299,24 @@ body {
   box-shadow: var(--shadow-button-active);
 }
 
-.btn-mode-rect i {
-  width: 20px;
-  height: 20px;
-  color: var(--color-active-blue);
-  stroke-width: 2.2px;
+.mode-icon {
+  font-size: 1.2rem;
+  line-height: 1;
 }
 
-.btn-mode-rect span {
-  font-size: 0.625rem;
+.btn-mode-rect span:last-child {
+  font-size: 0.6rem;
   font-weight: 700;
   color: var(--text-dark);
 }
 
-/* Active Mode */
 .btn-mode-rect.active {
   background-color: var(--color-active-blue);
   border-color: var(--color-active-blue);
 }
 
-.btn-mode-rect.active i {
+.btn-mode-rect.active span:last-child {
   color: white;
-}
-
-.btn-mode-rect.active span {
-  color: white;
-}
-
-/* Split Row: Fan and Oscillation */
-.split-controls-row {
-  display: flex;
-  gap: 0.75rem;
-  width: 100%;
 }
 
 .control-box {
@@ -385,19 +337,6 @@ body {
   align-items: center;
   gap: 0.25rem;
   text-transform: uppercase;
-}
-
-.box-title-icon {
-  width: 12px;
-  height: 12px;
-  stroke-width: 2.5px;
-}
-
-/* Fan Grid (2x2) */
-.fan-grid-mockup {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.375rem;
 }
 
 .btn-fan-mock {
@@ -426,13 +365,6 @@ body {
   box-shadow: var(--shadow-button-active);
 }
 
-/* Swing Buttons Column */
-.swing-buttons-vertical {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-}
-
 .btn-swing-mock {
   background-color: var(--bg-card);
   border: 1px solid var(--border-light);
@@ -455,12 +387,6 @@ body {
   background-color: #f1f5f9;
 }
 
-.btn-swing-mock i {
-  width: 14px;
-  height: 14px;
-  stroke-width: 2.2px;
-}
-
 .btn-swing-mock.active {
   background-color: var(--color-active-blue);
   border-color: var(--color-active-blue);
@@ -468,7 +394,6 @@ body {
   box-shadow: var(--shadow-button-active);
 }
 
-/* Specials Row */
 .specials-row {
   display: flex;
   gap: 0.375rem;
@@ -485,25 +410,23 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.375rem;
+  gap: 0.25rem;
   cursor: pointer;
   box-shadow: var(--shadow-button);
   transition: var(--transition-normal);
+  font-family: var(--font-family);
 }
 
 .btn-special-rect:hover {
   background-color: #f1f5f9;
 }
 
-.btn-special-rect i {
-  width: 18px;
-  height: 18px;
-  color: var(--text-muted);
-  stroke-width: 2px;
-  transition: var(--transition-normal);
+.btn-special-rect span:first-child {
+  font-size: 1.1rem;
+  line-height: 1;
 }
 
-.btn-special-rect span {
+.btn-special-rect span:last-child {
   font-size: 0.65rem;
   font-weight: 700;
   color: var(--text-dark);
@@ -514,59 +437,11 @@ body {
   background-color: #f1f5f9;
 }
 
-.btn-special-rect.active#btn-eco i { color: #10b981; }
-.btn-special-rect.active#btn-health i { color: #14b8a6; }
-.btn-special-rect.active#btn-turbo i { color: #f59e0b; }
-.btn-special-rect.active#btn-light i { color: #eab308; }
+.btn-special-rect.active#btn-eco span:first-child { color: #10b981; }
+.btn-special-rect.active#btn-health span:first-child { color: #14b8a6; }
+.btn-special-rect.active#btn-turbo span:first-child { color: #f59e0b; }
+.btn-special-rect.active#btn-light span:first-child { color: #eab308; }
 
-/* Room Status Card */
-.room-status-card {
-  background-color: var(--bg-dark-card);
-  border-radius: 12px;
-  padding: 0.75rem 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: white;
-  margin-top: 0.125rem;
-}
-
-.room-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.room-label {
-  font-size: 0.55rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  letter-spacing: 0.05em;
-}
-
-.room-name {
-  font-size: 0.85rem;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-}
-
-.connection-status {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
-
-.conn-text {
-  font-size: 0.65rem;
-  font-weight: 800;
-  color: #10b981;
-}
-
-.conn-id {
-  font-size: 0.55rem;
-  color: var(--text-muted);
-}
-
-/* Power Button */
 .power-button-container {
   width: 100%;
   margin-top: 0.25rem;
@@ -585,7 +460,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.625rem;
+  gap: 0.5rem;
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(220, 38, 38, 0.35);
   transition: var(--transition-normal);
@@ -596,13 +471,40 @@ body {
   box-shadow: 0 2px 5px rgba(220, 38, 38, 0.2);
 }
 
-.btn-power-large i {
-  width: 22px;
-  height: 22px;
-  stroke-width: 2.5px;
+.btn-power-large span:first-child {
+  font-size: 1.3rem;
 }
 
-/* --- ABA 2: TIMER STYLING --- */
+/* RAM card with bar */
+.ram-card {
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.5rem 0.5rem;
+}
+
+.ram-info {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.ram-bar-bg {
+  width: 100%;
+  height: 5px;
+  background-color: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.ram-bar-fill {
+  height: 100%;
+  background-color: var(--color-active-blue);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+  width: 0%;
+}
+
 .card-timer-container {
   display: flex;
   flex-direction: column;
@@ -625,13 +527,6 @@ body {
   border-bottom: 1.5px solid #f1f5f9;
   padding-bottom: 0.5rem;
 }
-
-.timer-card-icon {
-  width: 20px;
-  height: 20px;
-}
-.timer-card-icon.green { color: #10b981; }
-.timer-card-icon.red { color: var(--color-power-red); }
 
 .timer-card-header h3 {
   font-size: 0.75rem;
@@ -680,6 +575,7 @@ body {
   font-size: 0.8rem;
   cursor: pointer;
   transition: var(--transition-normal);
+  font-family: var(--font-family);
 }
 
 .btn-adjust:hover { background-color: #cbd5e1; }
@@ -694,11 +590,11 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
 }
 .btn-clear-timer:hover { background-color: rgba(239, 68, 68, 0.2); }
-.btn-clear-timer i { width: 16px; height: 16px; }
 
-/* --- ABA 3: AJUSTES / AUTOMACAO STYLING --- */
 .thermostat-card-modern {
   background-color: var(--bg-card);
   border: 1px solid var(--border-light);
@@ -803,6 +699,7 @@ body {
   font-weight: 700;
   font-size: 0.85rem;
   cursor: pointer;
+  font-family: var(--font-family);
 }
 .btn-auto-on.active {
   background-color: #14b8a6;
@@ -817,9 +714,9 @@ body {
   border-radius: 10px;
   font-weight: 700;
   cursor: pointer;
+  font-family: var(--font-family);
 }
 
-/* Chart Card Modern */
 .chart-card-modern {
   background-color: var(--bg-card);
   border: 1px solid var(--border-light);
@@ -838,7 +735,6 @@ body {
   position: relative;
 }
 
-/* Rodapé Navbar */
 .app-navbar {
   flex-shrink: 0;
   position: relative;
@@ -863,30 +759,28 @@ body {
   cursor: pointer;
   transition: var(--transition-normal);
   flex: 1;
+  font-family: var(--font-family);
 }
 
 .nav-item:hover {
   color: white;
 }
 
-.nav-item i {
-  width: 20px;
-  height: 20px;
-  stroke-width: 2.2px;
+.nav-icon {
+  font-size: 1.1rem;
+  line-height: 1;
 }
 
-.nav-item span {
+.nav-item span:last-child {
   font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.05em;
 }
 
-/* Nav Item Active */
 .nav-item.active {
   color: var(--color-active-blue);
 }
 
-/* Custom full-width fan row */
 .fan-box-full {
   background-color: #e2e8f0;
   border: 1.5px solid #cbd5e1;
@@ -913,7 +807,6 @@ body {
   flex: 1;
 }
 
-/* Custom swing box in adjustments */
 .swing-box-ajustes {
   background-color: var(--bg-card);
   border: 1px solid var(--border-light);
@@ -941,7 +834,6 @@ body {
   padding: 0.875rem 0.5rem;
 }
 
-/* Custom device info card in adjustments */
 .device-info-card {
   background-color: var(--bg-card);
   border: 1px solid var(--border-light);
@@ -953,7 +845,6 @@ body {
   gap: 0.625rem;
 }
 
-
 </style>
 </head>
 <body>
@@ -962,9 +853,7 @@ body {
     
     <!-- HEADER -->
     <header class="app-header">
-      <button class="btn-back" aria-label="Voltar">
-        <i data-lucide="chevron-left"></i>
-      </button>
+      <div class="header-placeholder"></div>
       <h1>TAC09CHSD AC</h1>
       <div class="header-placeholder"></div>
     </header>
@@ -972,22 +861,30 @@ body {
     <!-- CONTEÚDO PRINCIPAL (COM ABAS) -->
     <main class="app-content">
 
-      <!-- ABA 1: INÍCIO (PAINEL PRINCIPAL) -->
+      <!-- ABA 1: INÍCIO -->
       <div id="tab-inicio" class="tab-pane active">
         
         <!-- Cards de Leitura Rápida -->
         <div class="info-row-top">
           <div class="info-card">
-            <i data-lucide="home" class="info-icon"></i>
             <span class="info-label">AMBIENTE:</span>
             <span class="info-val" id="room-temp">--</span>
             <span class="info-unit">&deg;C</span>
           </div>
           <div class="info-card">
-            <i data-lucide="map-pin" class="info-icon"></i>
             <span class="info-label">JD. ITÁLIA:</span>
             <span class="info-val" id="cuiaba-temp">--</span>
             <span class="info-unit">&deg;C</span>
+          </div>
+          <div class="info-card ram-card">
+            <div class="ram-info">
+              <span class="info-label">RAM:</span>
+              <span class="info-val" id="ram-pct">--</span>
+              <span class="info-unit">% usado</span>
+            </div>
+            <div class="ram-bar-bg">
+              <div class="ram-bar-fill" id="ram-bar"></div>
+            </div>
           </div>
         </div>
 
@@ -999,14 +896,14 @@ body {
           
           <div class="temp-control-inner">
             <button class="btn-dial" onclick="adjustTemp(-0.5)" aria-label="Diminuir Temperatura">
-              <i data-lucide="minus"></i>
+              <span class="dial-symbol">&minus;</span>
             </button>
             <div class="temp-display-value">
               <span id="target-temp">22</span>
               <span class="degree-symbol">&deg;C</span>
             </div>
             <button class="btn-dial" onclick="adjustTemp(0.5)" aria-label="Aumentar Temperatura">
-              <i data-lucide="plus"></i>
+              <span class="dial-symbol">+</span>
             </button>
           </div>
         </div>
@@ -1014,30 +911,30 @@ body {
         <!-- Grade de Modos de Operação -->
         <div class="modes-row">
           <button class="btn-mode-rect" id="mode-cool" onclick="sendCmd('MODE_COOL')">
-            <i data-lucide="snowflake"></i>
+            <span class="mode-icon">❄</span>
             <span>FRIO</span>
           </button>
           <button class="btn-mode-rect" id="mode-heat" onclick="sendCmd('MODE_HEAT')">
-            <i data-lucide="sun"></i>
+            <span class="mode-icon">☀</span>
             <span>CALOR</span>
           </button>
           <button class="btn-mode-rect" id="mode-dry" onclick="sendCmd('MODE_DRY')">
-            <i data-lucide="droplet"></i>
+            <span class="mode-icon">💧</span>
             <span>SECO</span>
           </button>
           <button class="btn-mode-rect" id="mode-fan" onclick="sendCmd('MODE_FAN')">
-            <i data-lucide="fan"></i>
+            <span class="mode-icon">🌀</span>
             <span>VENT.</span>
           </button>
           <button class="btn-mode-rect" id="mode-auto" onclick="sendCmd('MODE_AUTO')">
-            <i data-lucide="sparkles"></i>
+            <span class="mode-icon">⚡</span>
             <span>AUTO</span>
           </button>
         </div>
 
-        <!-- Velocidade da Ventoinha (Largura Total) -->
+        <!-- Velocidade da Ventoinha -->
         <div class="control-box fan-box-full">
-          <h3><i data-lucide="wind" class="box-title-icon"></i> FAN VELOCIDADE</h3>
+          <h3>💨 FAN VELOCIDADE</h3>
           <div class="fan-row-full">
             <button class="btn-fan-mock" id="fan-auto" onclick="sendCmd('FAN_AUTO')">AUTO</button>
             <button class="btn-fan-mock" id="fan-min" onclick="sendCmd('FAN_MIN')">SILEN.</button>
@@ -1050,27 +947,27 @@ body {
         <!-- Funções Especiais -->
         <div class="specials-row">
           <button class="btn-special-rect" id="btn-eco" onclick="toggleSpecial('eco')">
-            <i data-lucide="leaf"></i>
+            <span>🌿</span>
             <span>ECO</span>
           </button>
           <button class="btn-special-rect" id="btn-health" onclick="toggleSpecial('health')">
-            <i data-lucide="shield"></i>
+            <span>🛡</span>
             <span>SAÚDE</span>
           </button>
           <button class="btn-special-rect" id="btn-turbo" onclick="toggleSpecial('turbo')">
-            <i data-lucide="zap"></i>
+            <span>⚡</span>
             <span>TURBO</span>
           </button>
           <button class="btn-special-rect" id="btn-light" onclick="toggleSpecial('light')">
-            <i data-lucide="lightbulb"></i>
+            <span>💡</span>
             <span>LUZ</span>
           </button>
         </div>
 
-        <!-- Botão Ligar/Desligar Grande Vermelho -->
+        <!-- Botão Ligar/Desligar -->
         <div class="power-button-container">
           <button class="btn-power-large" id="btn-power" onclick="togglePower()">
-            <i data-lucide="power"></i>
+            <span>⏻</span>
             <span>LIGAR / DESLIGAR</span>
           </button>
         </div>
@@ -1087,30 +984,28 @@ body {
         <div class="card-timer-container">
           <div class="timer-card-modern">
             <div class="timer-card-header">
-              <i data-lucide="play-circle" class="timer-card-icon green"></i>
-              <h3>LIGAR APARELHO EM:</h3>
+              <h3>▶ LIGAR APARELHO EM:</h3>
             </div>
             <div class="timer-card-body">
               <span class="timer-display-time" id="timer-on-val">Desativado</span>
               <div class="timer-adjust-row">
                 <button class="btn-adjust" onclick="adjustTimer('ON', -20)">-20m</button>
                 <button class="btn-adjust" onclick="adjustTimer('ON', 20)">+20m</button>
-                <button class="btn-clear-timer" onclick="clearTimer('ON')"><i data-lucide="trash-2"></i></button>
+                <button class="btn-clear-timer" onclick="clearTimer('ON')">✕</button>
               </div>
             </div>
           </div>
 
           <div class="timer-card-modern">
             <div class="timer-card-header">
-              <i data-lucide="stop-circle" class="timer-card-icon red"></i>
-              <h3>DESLIGAR APARELHO EM:</h3>
+              <h3>⏹ DESLIGAR APARELHO EM:</h3>
             </div>
             <div class="timer-card-body">
               <span class="timer-display-time" id="timer-off-val">Desativado</span>
               <div class="timer-adjust-row">
                 <button class="btn-adjust" onclick="adjustTimer('OFF', -20)">-20m</button>
                 <button class="btn-adjust" onclick="adjustTimer('OFF', 20)">+20m</button>
-                <button class="btn-clear-timer" onclick="clearTimer('OFF')"><i data-lucide="trash-2"></i></button>
+                <button class="btn-clear-timer" onclick="clearTimer('OFF')">✕</button>
               </div>
             </div>
           </div>
@@ -1158,18 +1053,34 @@ body {
           </div>
         </div>
 
-        <!-- Oscilação (Movida da aba Início) -->
+        <!-- Oscilação -->
         <div class="control-box swing-box-ajustes">
-          <h3><i data-lucide="sliders" class="box-title-icon"></i> OSCILAÇÃO DO VENTO</h3>
+          <h3>🌬 OSCILAÇÃO DO VENTO</h3>
           <div class="swing-buttons-row">
             <button class="btn-swing-mock" id="btn-swingv" onclick="toggleSwingV()">
-              <i data-lucide="arrow-up-down"></i>
-              VERT (VERTICAL)
+              ⇅ VERT (VERTICAL)
             </button>
             <button class="btn-swing-mock" id="btn-swingh" onclick="toggleSwingH()">
-              <i data-lucide="arrow-left-right"></i>
-              HORIZ (LATERAL)
+              ⇄ HORIZ (LATERAL)
             </button>
+          </div>
+        </div>
+
+        <!-- Integração WhatsApp -->
+        <div class="thermostat-card-modern">
+          <div class="therm-status-header">
+            <div class="therm-status-info">
+              <span class="lbl">WhatsApp Bot:</span>
+              <span class="badge" id="whatsapp-badge">Desativado</span>
+            </div>
+            <div class="therm-status-info" style="align-items: flex-end;">
+              <span class="lbl">Status:</span>
+              <span class="badge" id="whatsapp-status-badge">--</span>
+            </div>
+          </div>
+          <div class="btn-auto-toggle-row">
+            <button class="btn-auto-on" id="btn-bot-on" onclick="sendCmd('BOT_ENABLE')">Ativar Bot</button>
+            <button class="btn-auto-off" id="btn-bot-off" onclick="sendCmd('BOT_DISABLE')">Desativar</button>
           </div>
         </div>
 
@@ -1179,15 +1090,11 @@ body {
             <span>Status da Conexão:</span>
             <span class="badge" id="conn-text-badge">CONECTADO</span>
           </div>
-          <div class="info-row-new">
-            <span>ID do Dispositivo:</span>
-            <span class="value-small">TAC09CHSD_0921</span>
-          </div>
         </div>
 
         <!-- Histórico Gráfico -->
         <div class="chart-card-modern">
-          <h3><i data-lucide="trending-up" class="box-title-icon"></i> HISTÓRICO DE TEMPERATURA</h3>
+          <h3>📈 HISTÓRICO DE TEMPERATURA (20 min)</h3>
           <div class="chart-wrapper">
             <canvas id="tempChart"></canvas>
           </div>
@@ -1199,15 +1106,15 @@ body {
     <!-- NAVEGAÇÃO INFERIOR -->
     <nav class="app-navbar">
       <button class="nav-item active" id="nav-inicio" onclick="switchTab('inicio')">
-        <i data-lucide="home"></i>
+        <span class="nav-icon">🏠</span>
         <span>INÍCIO</span>
       </button>
       <button class="nav-item" id="nav-timer" onclick="switchTab('timer')">
-        <i data-lucide="calendar"></i>
+        <span class="nav-icon">⏱</span>
         <span>TIMER</span>
       </button>
       <button class="nav-item" id="nav-ajustes" onclick="switchTab('ajustes')">
-        <i data-lucide="settings"></i>
+        <span class="nav-icon">⚙</span>
         <span>AJUSTES</span>
       </button>
     </nav>
@@ -1215,47 +1122,37 @@ body {
   </div>
 
   <script>
-// TAC09CHSD AC - Frontend Controller Logic
+// TAC09CHSD AC - Frontend Controller Logic (zero external dependencies)
 
-let tempChart = null;
 let currentAcState = {};
 let currentAutoState = {};
 let isUpdating = false;
 
 // Inicialização
 window.onload = function() {
-  initChart();
   updateStatus();
   fetchCuiabaWeather();
   
-  // Inicializa os ícones do Lucide
-  lucide.createIcons();
-
   // Loop de polling a cada 2 segundos
   setInterval(updateStatus, 2000);
   
-  // Atualiza clima de Cuiabá a cada 5 minutos
+  // Atualiza clima a cada 5 minutos
   setInterval(fetchCuiabaWeather, 300000);
 };
 
-// Alternar entre Abas (Single Page App)
+// Alternar entre Abas
 window.switchTab = function(tabName) {
-  // Oculta todas as panes e remove classe ativa da nav
   const panes = document.querySelectorAll('.tab-pane');
   panes.forEach(pane => pane.classList.remove('active'));
   
   const navItems = document.querySelectorAll('.nav-item');
   navItems.forEach(item => item.classList.remove('active'));
   
-  // Ativa a pane selecionada e o botão correspondente
   document.getElementById(`tab-${tabName}`).classList.add('active');
   document.getElementById(`nav-${tabName}`).classList.add('active');
-  
-  // Recria os ícones Lucide da página se necessário
-  lucide.createIcons();
 };
 
-// Busca clima real de Cuiabá usando API pública sem chave (Open-Meteo)
+// Busca clima real de Cuiabá via Open-Meteo
 async function fetchCuiabaWeather() {
   try {
     const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-15.6010&longitude=-56.0974&current_weather=true');
@@ -1267,82 +1164,114 @@ async function fetchCuiabaWeather() {
       }
     }
   } catch (error) {
-    console.log('Erro ao buscar clima de Cuiabá:', error);
+    console.log('Erro ao buscar clima:', error);
   }
 }
 
-// Inicializa o Gráfico de Histórico
-function initChart() {
-  const ctx = document.getElementById('tempChart').getContext('2d');
-  
-  // Cria gradiente azul sutil
-  const gradient = ctx.createLinearGradient(0, 0, 0, 150);
-  gradient.addColorStop(0, 'rgba(59, 130, 246, 0.25)');
-  gradient.addColorStop(1, 'rgba(59, 130, 246, 0.00)');
+// Desenha gráfico de linhas no canvas (sem dependências externas)
+function drawChart(data) {
+  const canvas = document.getElementById('tempChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  const w = rect.width;
+  const h = rect.height;
 
-  tempChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [{
-        label: 'Temperatura (°C)',
-        data: [],
-        borderColor: '#3b82f6',
-        backgroundColor: gradient,
-        borderWidth: 2.5,
-        fill: true,
-        tension: 0.4,
-        pointBackgroundColor: '#3b82f6',
-        pointBorderColor: '#f8fafc',
-        pointHoverBackgroundColor: '#fff',
-        pointHoverBorderColor: '#3b82f6',
-        pointRadius: 3.5,
-        pointHoverRadius: 5.5
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      animation: {
-        duration: 300
-      },
-      scales: {
-        y: {
-          suggestedMin: 18,
-          suggestedMax: 30,
-          grid: {
-            color: '#e2e8f0'
-          },
-          ticks: {
-            color: '#64748b',
-            font: { family: 'Inter', size: 10 }
-          }
-        },
-        x: {
-          grid: {
-            display: false
-          },
-          ticks: {
-            color: '#64748b',
-            font: { family: 'Inter', size: 9 }
-          }
-        }
-      },
-      plugins: {
-        legend: {
-          display: false
-        },
-        tooltip: {
-          backgroundColor: '#1e293b',
-          titleFont: { family: 'Inter', size: 11 },
-          bodyFont: { family: 'Inter', size: 11 }
-        }
-      }
-    }
-  });
+  ctx.clearRect(0, 0, w, h);
+  if (!data || data.length < 2) {
+    ctx.fillStyle = '#64748b';
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Aguardando dados...', w / 2, h / 2);
+    return;
+  }
+
+  const pad = { top: 10, bottom: 20, left: 30, right: 10 };
+  const chartW = w - pad.left - pad.right;
+  const chartH = h - pad.top - pad.bottom;
+  let min = Math.min(...data);
+  let max = Math.max(...data);
+  const range = max - min || 1;
+  const margin = range * 0.15;
+  min -= margin;
+  max += margin;
+
+  // Grid
+  ctx.strokeStyle = '#e2e8f0';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (chartH * i) / 4;
+    ctx.beginPath();
+    ctx.moveTo(pad.left, y);
+    ctx.lineTo(w - pad.right, y);
+    ctx.stroke();
+    const val = (max - (range * i) / 4).toFixed(1);
+    ctx.fillStyle = '#64748b';
+    ctx.font = '9px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(val, pad.left - 4, y + 3);
+  }
+
+  // Linha
+  ctx.beginPath();
+  ctx.strokeStyle = '#3b82f6';
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = 'round';
+  for (let i = 0; i < data.length; i++) {
+    const x = pad.left + (chartW * i) / (data.length - 1);
+    const y = pad.top + chartH - ((data[i] - min) / (max - min)) * chartH;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Área preenchida
+  const lastIdx = data.length - 1;
+  const lastX = pad.left + (chartW * lastIdx) / (data.length - 1);
+  const lastY = pad.top + chartH - ((data[lastIdx] - min) / (max - min)) * chartH;
+  const firstX = pad.left;
+  const firstY = pad.top + chartH - ((data[0] - min) / (max - min)) * chartH;
+  const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + chartH);
+  grad.addColorStop(0, 'rgba(59, 130, 246, 0.2)');
+  grad.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+  ctx.lineTo(lastX, lastY);
+  ctx.lineTo(lastX, pad.top + chartH);
+  ctx.lineTo(firstX, pad.top + chartH);
+  ctx.lineTo(firstX, firstY);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Labels do eixo X
+  ctx.fillStyle = '#64748b';
+  ctx.font = '9px sans-serif';
+  ctx.textAlign = 'center';
+  for (let i = 0; i < data.length; i++) {
+    const x = pad.left + (chartW * i) / (data.length - 1);
+    const minsAgo = data.length - 1 - i;
+    const label = minsAgo === 0 ? 'Agora' : `-${minsAgo}`;
+    ctx.fillText(label, x, h - 4);
+  }
+
+  // Pontos
+  ctx.fillStyle = '#3b82f6';
+  for (let i = 0; i < data.length; i++) {
+    const x = pad.left + (chartW * i) / (data.length - 1);
+    const y = pad.top + chartH - ((data[i] - min) / (max - min)) * chartH;
+    ctx.beginPath();
+    ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#f8fafc';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
 }
 
-// Atualiza o Status do Dispositivo (API GET)
+// Atualiza o Status do Dispositivo
 async function updateStatus() {
   if (isUpdating) return;
   isUpdating = true;
@@ -1353,12 +1282,19 @@ async function updateStatus() {
     
     const data = await response.json();
     
-    // Atualiza leituras de sensores
+    // Atualiza temperatura ambiente
     if (data.temp_real !== undefined) {
       document.getElementById('room-temp').innerText = parseFloat(data.temp_real).toFixed(1);
     }
 
-    // Processa Estado do Ar (objeto JSON estruturado)
+    // Atualiza RAM livre (porcentagem + barra)
+    if (data.free_heap !== undefined && data.total_heap > 0) {
+      const usedPct = ((1 - data.free_heap / data.total_heap) * 100).toFixed(1);
+      document.getElementById('ram-pct').innerText = usedPct;
+      document.getElementById('ram-bar').style.width = usedPct + '%';
+    }
+
+    // Processa Estado do Ar
     if (data.ac_state && typeof data.ac_state === 'object') {
       currentAcState = data.ac_state;
       syncAcUi(currentAcState);
@@ -1372,21 +1308,17 @@ async function updateStatus() {
     };
     syncAutoUi(currentAutoState);
 
-    // Atualiza o grafico
-    if (data.historico && data.historico.length > 0 && tempChart) {
-      const labels = Array.from({ length: data.historico.length }, (_, i) => {
-        const minsAgo = data.historico.length - 1 - i;
-        return minsAgo === 0 ? 'Agora' : `-${minsAgo}m`;
-      });
-      
-      tempChart.data.labels = labels;
-      tempChart.data.datasets[0].data = data.historico;
-      tempChart.update('none'); // Atualização sem resetar animação completa
+    // Atualiza o gráfico
+    if (data.historico && data.historico.length > 0) {
+      drawChart(data.historico);
     }
 
-    // Atualiza badge de conexao
+    // Badge de conexão
     document.getElementById('conn-text-badge').innerText = 'CONECTADO';
     document.getElementById('conn-text-badge').style.color = '#10b981';
+
+    // Sincroniza UI do WhatsApp
+    syncBotUi(data);
 
   } catch (error) {
     console.error('Erro ao buscar status:', error);
@@ -1397,9 +1329,8 @@ async function updateStatus() {
   }
 }
 
-// Sincroniza a UI do Painel Principal (Início)
+// Sincroniza a UI do Painel Principal
 function syncAcUi(state) {
-  // 1. LED status
   const ledDot = document.getElementById('ac-led-dot');
   if (state.power) {
     ledDot.classList.add('active');
@@ -1407,47 +1338,31 @@ function syncAcUi(state) {
     ledDot.classList.remove('active');
   }
 
-  // 2. Temperatura Alvo (Mostra decimal se houver, ex: 22 ou 22.5)
   if (state.temp !== undefined) {
     const tempVal = parseFloat(state.temp);
     document.getElementById('target-temp').innerText = tempVal % 1 === 0 ? tempVal.toFixed(0) : tempVal.toFixed(1);
   }
 
-  // 3. Modos
   const modes = ['cool', 'heat', 'dry', 'fan', 'auto'];
   modes.forEach(m => document.getElementById(`mode-${m}`).classList.remove('active'));
   
-  const modeMap = {
-    3: 'cool',
-    1: 'heat',
-    2: 'dry',
-    7: 'fan',
-    8: 'auto'
-  };
+  const modeMap = { 3: 'cool', 1: 'heat', 2: 'dry', 7: 'fan', 8: 'auto' };
   const activeModeName = modeMap[state.mode];
   if (activeModeName) {
     document.getElementById(`mode-${activeModeName}`).classList.add('active');
   }
 
-  // 4. Velocidade do Ventilador (Suporta todos os 5 níveis da TCL)
   const fanButtons = ['auto', 'min', 'low', 'med', 'high'];
   fanButtons.forEach(speed => document.getElementById(`fan-${speed}`).classList.remove('active'));
   
-  const fanMap = {
-    0: 'auto',
-    1: 'min',
-    2: 'low',
-    3: 'med',
-    5: 'high'
-  };
+  const fanMap = { 0: 'auto', 1: 'min', 2: 'low', 3: 'med', 5: 'high' };
   const activeFanName = fanMap[state.fan];
   if (activeFanName) {
     document.getElementById(`fan-${activeFanName}`).classList.add('active');
   }
 
-  // 5. Oscilações (Swing Vert / Swing Horiz)
   const swingVBtn = document.getElementById('btn-swingv');
-  if (state.swingv === 7) { // kTcl112AcSwingVOn (Oscilando)
+  if (state.swingv === 7) {
     swingVBtn.classList.add('active');
   } else {
     swingVBtn.classList.remove('active');
@@ -1460,18 +1375,15 @@ function syncAcUi(state) {
     swingHBtn.classList.remove('active');
   }
 
-  // 6. Funções Especiais
   toggleUiClass('btn-eco', state.econo);
   toggleUiClass('btn-health', state.health);
   toggleUiClass('btn-turbo', state.turbo);
   toggleUiClass('btn-light', state.light);
 
-  // 7. Timers
   updateTimerDisplay('timer-on-val', state.timer_on);
   updateTimerDisplay('timer-off-val', state.timer_off);
 }
 
-// Auxiliares de classe
 function toggleUiClass(id, isActive) {
   const el = document.getElementById(id);
   if (isActive) {
@@ -1501,7 +1413,7 @@ function formatMins(totalMins) {
   return `${mins} Minutos`;
 }
 
-// Sincroniza a aba do Termostato Inteligente (Ajustes)
+// Sincroniza a aba do Termostato Inteligente
 function syncAutoUi(state) {
   const badge = document.getElementById('thermostat-mode-badge');
   const btnOn = document.getElementById('btn-auto-on');
@@ -1533,6 +1445,38 @@ function syncAutoUi(state) {
   });
 }
 
+// Sincroniza UI do WhatsApp Bot
+function syncBotUi(data) {
+  const badge = document.getElementById('whatsapp-badge');
+  const statusBadge = document.getElementById('whatsapp-status-badge');
+  const btnOn = document.getElementById('btn-bot-on');
+  const btnOff = document.getElementById('btn-bot-off');
+
+  const enabled = data.whatsapp_enabled;
+  if (enabled) {
+    badge.innerText = 'ATIVADO';
+    badge.style.color = '#14b8a6';
+    btnOn.classList.add('active');
+    btnOff.classList.remove('active');
+  } else {
+    badge.innerText = 'DESATIVADO';
+    badge.style.color = '#64748b';
+    btnOn.classList.remove('active');
+    btnOff.classList.add('active');
+  }
+
+  if (data.whatsapp_status) {
+    statusBadge.innerText = data.whatsapp_status;
+    if (data.whatsapp_status.includes('Sucesso')) {
+      statusBadge.style.color = '#10b981';
+    } else if (data.whatsapp_status.includes('Erro') || data.whatsapp_status.includes('Falha')) {
+      statusBadge.style.color = '#ef4444';
+    } else {
+      statusBadge.style.color = '#64748b';
+    }
+  }
+}
+
 // Envio de comandos HTTP
 async function sendCmd(command) {
   try {
@@ -1545,12 +1489,10 @@ async function sendCmd(command) {
   }
 }
 
-// Alternar liga/desliga geral pelo botão LIGAR/DESLIGAR
 window.togglePower = function() {
   sendCmd('TOGGLE_POWER');
 };
 
-// Ajustar temperatura em 0.5 graus (+/-)
 window.adjustTemp = function(diff) {
   if (currentAcState.temp === undefined) return;
   let newTemp = parseFloat(currentAcState.temp) + diff;
@@ -1559,7 +1501,6 @@ window.adjustTemp = function(diff) {
   sendCmd(`T${newTemp.toFixed(1)}`);
 };
 
-// Alternar Swing Vertical
 window.toggleSwingV = function() {
   if (currentAcState.swingv === 7) {
     sendCmd('SWING_V_OFF');
@@ -1568,7 +1509,6 @@ window.toggleSwingV = function() {
   }
 };
 
-// Alternar Swing Horizontal
 window.toggleSwingH = function() {
   if (currentAcState.swingh) {
     sendCmd('SWING_H_OFF');
@@ -1577,15 +1517,8 @@ window.toggleSwingH = function() {
   }
 };
 
-// Alternar funções especiais (Eco, Turbo, Luz, Health)
 window.toggleSpecial = function(name) {
-  const key = {
-    'turbo': 'turbo',
-    'eco': 'econo',
-    'health': 'health',
-    'light': 'light'
-  }[name];
-  
+  const key = { 'turbo': 'turbo', 'eco': 'econo', 'health': 'health', 'light': 'light' }[name];
   const isCurrentlyActive = currentAcState[key];
   const cmdPrefix = name.toUpperCase();
   
@@ -1596,14 +1529,13 @@ window.toggleSpecial = function(name) {
   }
 };
 
-// Temporizadores (Timers)
 window.adjustTimer = function(type, offsetMins) {
   const key = type === 'ON' ? 'timer_on' : 'timer_off';
   let currentVal = currentAcState[key] || 0;
   
   let newVal = currentVal + offsetMins;
   if (newVal < 0) newVal = 0;
-  if (newVal > 720) newVal = 720; // 12 horas máx
+  if (newVal > 720) newVal = 720;
 
   if (newVal === 0) {
     window.clearTimer(type);
