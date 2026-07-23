@@ -371,10 +371,10 @@ window.togglePower = function() {
 
 window.adjustTemp = function(diff) {
   if (currentAcState.temp === undefined) return;
-  let newTemp = parseFloat(currentAcState.temp) + diff;
-  if (newTemp < 16.0) newTemp = 16.0;
-  if (newTemp > 31.0) newTemp = 31.0;
-  sendCmd(`T${newTemp.toFixed(1)}`);
+  let newTemp = Math.round(parseFloat(currentAcState.temp) + diff);
+  if (newTemp < 16) newTemp = 16;
+  if (newTemp > 31) newTemp = 31;
+  sendCmd(`T${newTemp}`);
 };
 
 window.toggleSwingV = function() {

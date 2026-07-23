@@ -949,14 +949,14 @@ body {
           </div>
           
           <div class="temp-control-inner">
-            <button class="btn-dial" onclick="adjustTemp(-0.5)" aria-label="Diminuir Temperatura">
+            <button class="btn-dial" onclick="adjustTemp(-1)" aria-label="Diminuir Temperatura">
               <span class="dial-symbol">&minus;</span>
             </button>
             <div class="temp-display-value">
               <span id="target-temp">22</span>
               <span class="degree-symbol">&deg;C</span>
             </div>
-            <button class="btn-dial" onclick="adjustTemp(0.5)" aria-label="Aumentar Temperatura">
+            <button class="btn-dial" onclick="adjustTemp(1)" aria-label="Aumentar Temperatura">
               <span class="dial-symbol">+</span>
             </button>
           </div>
@@ -1557,10 +1557,10 @@ window.togglePower = function() {
 
 window.adjustTemp = function(diff) {
   if (currentAcState.temp === undefined) return;
-  let newTemp = parseFloat(currentAcState.temp) + diff;
-  if (newTemp < 16.0) newTemp = 16.0;
-  if (newTemp > 31.0) newTemp = 31.0;
-  sendCmd(`T${newTemp.toFixed(1)}`);
+  let newTemp = Math.round(parseFloat(currentAcState.temp) + diff);
+  if (newTemp < 16) newTemp = 16;
+  if (newTemp > 31) newTemp = 31;
+  sendCmd(`T${newTemp}`);
 };
 
 window.toggleSwingV = function() {
