@@ -20,7 +20,7 @@
 #define TOTAL_RAM 81920 
  
 // --- INSTÂNCIAS --- 
-DHT dht(DHTPIN, DHTTYPE); 
+DHT dht(DHTPIN, DHTTYPE, 15); // count=15 melhora leitura em ESP8266 com WiFi ativo
 IRTcl112Ac ac(PINO_TX); 
 ESP8266WebServer server(80); 
  
