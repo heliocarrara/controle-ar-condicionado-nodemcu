@@ -5,14 +5,18 @@ Este projeto permite controlar um ar condicionado da marca TCL utilizando um mic
 ## 🚀 Funcionalidades
 
 - **Energia:** Ligar e Desligar o ar condicionado.
-- **Ajuste de Temperatura:** Definir a temperatura alvo de 16°C a 31°C, com suporte a **meio grau (passos de 0.5°C)** (ex: 22.5°C).
+- **Ajuste de Temperatura:** Definir a temperatura alvo de 16°C a 31°C em passos de **1°C**.
+- **Presets rápidos:** Botões de atalho "24°C Média", "23°C Média", "22°C Baixa" na tela inicial.
 - **Modos de Operação:** Frio, Quente, Secar, Ventilar e Automático.
 - **Velocidade do Ventilador:** Automático, Silencioso, Baixo, Médio e Alto (Máximo).
 - **Direcionamento do Vento (Swing):** Oscilação vertical automática ou fixação em 5 posições distintas; controle de oscilação horizontal (esquerda/direita).
 - **Funções Especiais:** Modo Eco (Modo Econômico), Turbo (Resfriamento Rápido), Visor LED (liga/desliga visor de temperatura do aparelho), Quiet (Silencioso) e Filtro Health.
 - **Temporizadores (Timers):** Programar o desligamento ou ligamento em passos de 20 minutos (até 12 horas).
 - **Termostato Inteligente:** Automação local opcional que liga/desliga o ar baseado nas leituras de um sensor DHT22 conectado ao NodeMCU para manter a temperatura do quarto estável.
-- **Histórico Gráfico:** Gráfico de temperatura em tempo real dos últimos 20 minutos.
+- **Histórico Gráfico:** Gráfico de temperatura em tempo real dos últimos 20 minutos (canvas nativo, sem bibliotecas externas).
+- **Monitor de RAM:** Percentual de uso da memória com barra visual na tela inicial e log no serial a cada 60s.
+- **Reinicialização via Web:** Botão "Reiniciar NodeMCU" na aba Ajustes.
+- **Integração WhatsApp Bot:** Suporte a comando via fila HTTP (desativado por padrão, ativável pela interface).
 - **Autenticação simples** baseada em chave de API para endpoints REST.
 
 ---
@@ -28,9 +32,9 @@ Para manter o desenvolvimento limpo e fácil de atualizar, a interface Web foi s
 ```
 
 1. **Arquivos Separados:** O design está dividido em arquivos limpos de frontend dentro da pasta [src/web/](file:///c:/Users/helio/source/repos/nodemcu/NodeMCU-ESP8266/src/web/):
-   * [index.html](file:///c:/Users/helio/source/repos/nodemcu/NodeMCU-ESP8266/src/web/index.html) (HTML5 Semântico e Ícones Lucide).
-   * [style.css](file:///c:/Users/helio/source/repos/nodemcu/NodeMCU-ESP8266/src/web/style.css) (Estilização com tema escuro, Glassmorphism e responsividade).
-   * [app.js](file:///c:/Users/helio/source/repos/nodemcu/NodeMCU-ESP8266/src/web/app.js) (Sincronização assíncrona, lógica de temporizadores e Chart.js).
+   * [index.html](file:///c:/Users/helio/source/repos/nodemcu/NodeMCU-ESP8266/src/web/index.html) (HTML5 Semântico com emoji unicode).
+   * [style.css](file:///c:/Users/helio/source/repos/nodemcu/NodeMCU-ESP8266/src/web/style.css) (Estilização responsiva, fonte do sistema, **sem CDN**).
+   * [app.js](file:///c:/Users/helio/source/repos/nodemcu/NodeMCU-ESP8266/src/web/app.js) (Sincronização assíncrona, gráfico canvas nativo, **sem Chart.js**).
 2. **Script de Pré-compilação:** No arquivo [platformio.ini](file:///c:/Users/helio/source/repos/nodemcu/NodeMCU-ESP8266/platformio.ini), configuramos um script extra em Python: [pre_build_web.py](file:///c:/Users/helio/source/repos/nodemcu/NodeMCU-ESP8266/pre_build_web.py).
 3. **Fusão Automática:** Toda vez que você compilar ou fizer o upload do projeto (`Build` ou `Upload` no VSCode), o PlatformIO executa esse script silenciosamente nos bastidores. O script lê o HTML, CSS e JS, junta tudo em um único código embutido inline (inlining) e gera automaticamente o arquivo [webpage.h](file:///c:/Users/helio/source/repos/nodemcu/NodeMCU-ESP8266/src/webpage.h) como uma constante literal em C++ armazenada na Flash (`PROGMEM`).
 
@@ -47,7 +51,7 @@ Para manter o desenvolvimento limpo e fácil de atualizar, a interface Web foi s
 - **Hardware:** NodeMCU (ESP8266) + LED Emissor IR + Sensor DHT22.
 - **Framework:** Arduino / PlatformIO.
 - **Bibliotecas:** `IRremoteESP8266` (Protocolo TCL 112 bits), `DHT sensor library`, `ArduinoJson`.
-- **Frontend:** HTML5, CSS3 Custom Properties (Dark/Light HSL), Vanilla JavaScript (Fetch API + ES6), Chart.js (CDN), Lucide Icons (CDN).
+- **Frontend:** HTML5, CSS3 Custom Properties, Vanilla JavaScript (Fetch API + ES7). **Zero dependências externas** — sem CDN, sem Google Fonts, sem bibliotecas de ícones ou gráficos.
 
 ---
 
