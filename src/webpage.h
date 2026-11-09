@@ -12,9 +12,9 @@ const char webpage_html[] PROGMEM = R"rawliteral(
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TAC09CHSD AC</title>
+  <title>Casa IR</title>
   <style>
-/* TAC09CHSD AC - Theme CSS (zero external dependencies) */
+/* Casa IR - Theme CSS (zero external dependencies) */
 
 :root {
   --bg-app: #f1f5f9;
@@ -106,6 +106,152 @@ body {
   padding: 1rem;
   padding-bottom: 1.5rem;
 }
+
+.device-switch {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.875rem;
+  padding: 0.25rem;
+  border-radius: 14px;
+  background: #e2e8f0;
+}
+
+.device-switch-btn {
+  flex: 1;
+  min-height: 42px;
+  border: 0;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.device-switch-btn.active {
+  color: #fff;
+  background: var(--bg-dark-header);
+  box-shadow: var(--shadow-out);
+}
+
+.device-panel[hidden],
+.nav-item[hidden] {
+  display: none !important;
+}
+
+.device-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.tv-remote-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1rem;
+  border: 1px solid var(--border-light);
+  border-radius: 18px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-out);
+}
+
+.tv-remote-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.tv-screen-icon { font-size: 1.8rem; }
+.tv-remote-heading h2 { font-size: 1.05rem; }
+.tv-remote-heading p, .tv-note { color: var(--text-muted); font-size: 0.75rem; }
+.tv-status-dot { width: 10px; height: 10px; margin-left: auto; border-radius: 50%; background: #10b981; }
+
+.tv-power-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 58px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--color-power-red);
+  color: #fff;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.tv-power-button span { font-size: 1.35rem; }
+.tv-control-group { display: flex; flex-direction: column; gap: 0.55rem; }
+.tv-control-label { color: var(--text-muted); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; }
+.tv-control-row { display: flex; align-items: center; justify-content: center; gap: 0.75rem; }
+
+.tv-control-button {
+  min-width: 54px;
+  min-height: 48px;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid var(--border-light);
+  border-radius: 13px;
+  background: #fff;
+  color: var(--text-dark);
+  font: inherit;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-button);
+}
+
+.tv-control-button-wide { flex: 1; font-size: 0.85rem; }
+.tv-control-hint { min-width: 70px; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
+.tv-source-button { width: 100%; font-size: 0.85rem; }
+.tv-note { line-height: 1.4; text-align: center; }
+
+.tv-dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 58px);
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.tv-dpad .tv-control-button { min-width: 58px; padding: 0.4rem; }
+.tv-dpad .tv-ok-button { border-radius: 50%; background: #e2e8f0; }
+.tv-action-row { flex-wrap: wrap; }
+.tv-action-row .tv-control-button { flex: 1; min-width: 82px; font-size: 0.78rem; }
+
+.tv-number-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.tv-number-pad .tv-control-button { width: 100%; }
+
+.tv-timer-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.9rem;
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  background: #eef2ff;
+}
+
+.tv-timer-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tv-timer-heading h3 { font-size: 0.95rem; }
+.tv-timer-heading p { margin-top: 0.2rem; color: #4338ca; font-size: 0.85rem; font-weight: 800; }
+.tv-timer-icon { font-size: 1.5rem; }
+.tv-timer-controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; }
+.tv-timer-controls .tv-control-button { min-width: 0; padding: 0.5rem 0.25rem; font-size: 0.72rem; }
+.tv-timer-controls .tv-timer-quick { background: #4338ca; color: #fff; border-color: #4338ca; }
+.tv-timer-cancel { align-self: center; padding: 0.4rem 0.6rem; border: 0; background: transparent; color: #b91c1c; font: inherit; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
 
 .tab-pane {
   display: none;
@@ -625,128 +771,6 @@ body {
 }
 .btn-clear-timer:hover { background-color: rgba(239, 68, 68, 0.2); }
 
-.thermostat-card-modern {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: 16px;
-  padding: 1.25rem;
-  box-shadow: var(--shadow-out);
-  display: flex;
-  flex-direction: column;
-  gap: 0.875rem;
-}
-
-.therm-status-header {
-  display: flex;
-  justify-content: space-between;
-  border-bottom: 1.5px solid #f1f5f9;
-  padding-bottom: 0.625rem;
-}
-
-.therm-status-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-}
-
-.therm-status-info .lbl {
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.therm-status-info .badge {
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: var(--text-muted);
-}
-.therm-status-info .badge.active { color: #14b8a6; }
-
-.therm-status-info .val {
-  font-size: 0.95rem;
-  font-weight: 800;
-}
-
-.therm-status-message {
-  display: flex;
-  justify-content: space-between;
-  background-color: #f1f5f9;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  font-size: 0.775rem;
-}
-.therm-status-message .lbl { color: var(--text-muted); font-weight: 600; }
-.therm-status-message .status-desc { font-weight: 700; color: var(--text-dark); }
-
-.therm-adjust-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.therm-adjust-section .section-label {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.btn-group-auto {
-  display: flex;
-  gap: 0.25rem;
-}
-
-.btn-auto-temp {
-  flex: 1;
-  background-color: #f1f5f9;
-  border: 1px solid var(--border-light);
-  border-radius: 8px;
-  padding: 0.5rem 0;
-  font-family: var(--font-family);
-  font-size: 0.775rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition-normal);
-  text-align: center;
-}
-.btn-auto-temp:hover { background-color: #cbd5e1; }
-.btn-auto-temp.active {
-  background-color: #14b8a6;
-  border-color: #14b8a6;
-  color: white;
-}
-
-.btn-auto-toggle-row {
-  display: flex;
-  gap: 0.5rem;
-}
-.btn-auto-on {
-  flex: 2;
-  background-color: rgba(20, 184, 166, 0.1);
-  border: 1px solid rgba(20, 184, 166, 0.2);
-  color: #14b8a6;
-  padding: 0.75rem;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 0.85rem;
-  cursor: pointer;
-  font-family: var(--font-family);
-}
-.btn-auto-on.active {
-  background-color: #14b8a6;
-  color: white;
-  border-color: #14b8a6;
-}
-.btn-auto-off {
-  flex: 1;
-  background-color: #e2e8f0;
-  border: 1px solid var(--border-light);
-  color: var(--text-dark);
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: var(--font-family);
-}
-
 .chart-card-modern {
   background-color: var(--bg-card);
   border: 1px solid var(--border-light);
@@ -908,12 +932,17 @@ body {
     <!-- HEADER -->
     <header class="app-header">
       <div class="header-placeholder"></div>
-      <h1>TAC09CHSD AC</h1>
+      <h1>CASA IR</h1>
       <div class="header-placeholder"></div>
     </header>
 
     <!-- CONTEÚDO PRINCIPAL (COM ABAS) -->
     <main class="app-content">
+
+      <div class="device-switch" role="tablist" aria-label="Selecionar aparelho">
+        <button class="device-switch-btn active" id="device-select-ac" onclick="switchDevice('ac')" role="tab" aria-selected="true">❄ Ar-condicionado</button>
+        <button class="device-switch-btn" id="device-select-tv" onclick="switchDevice('tv')" role="tab" aria-selected="false">📺 Televisão</button>
+      </div>
 
       <!-- ABA 1: INÍCIO -->
       <div id="tab-inicio" class="tab-pane active">
@@ -926,8 +955,8 @@ body {
             <span class="info-unit">&deg;C</span>
           </div>
           <div class="info-card">
-            <span class="info-label">JD. ITÁLIA:</span>
-            <span class="info-val" id="cuiaba-temp">--</span>
+            <span class="info-label">CRISTO REI:</span>
+            <span class="info-val" id="cristorei-temp">--</span>
             <span class="info-unit">&deg;C</span>
           </div>
           <div class="info-card ram-card">
@@ -942,6 +971,7 @@ body {
           </div>
         </div>
 
+        <section class="device-panel" id="device-panel-ac" aria-label="Controle do ar-condicionado">
         <!-- Widget Central de Temperatura Alvo -->
         <div class="temp-screen-card">
           <div class="screen-status-indicator">
@@ -1016,6 +1046,10 @@ body {
             <span>💡</span>
             <span>LUZ</span>
           </button>
+          <button class="btn-special-rect" id="btn-quiet" onclick="toggleSpecial('quiet')">
+            <span>🔇</span>
+            <span>SILENCIOSO</span>
+          </button>
         </div>
 
         <!-- Botão Ligar/Desligar -->
@@ -1032,6 +1066,104 @@ body {
           <button class="btn-preset" onclick="sendCmd('P23_MED')">23°C Média</button>
           <button class="btn-preset" onclick="sendCmd('P22_LOW')">22°C Baixa</button>
         </div>
+        </section>
+
+        <section class="device-panel tv-panel" id="device-panel-tv" aria-label="Controle da televisão Samsung" hidden>
+          <div class="tv-remote-card">
+            <div class="tv-remote-heading">
+              <span class="tv-screen-icon">📺</span>
+              <div>
+                <h2>TV Samsung</h2>
+                <p>Controle IR LE-7270</p>
+              </div>
+              <span class="tv-status-dot" aria-label="Pronta para enviar comandos"></span>
+            </div>
+
+            <button class="tv-power-button" onclick="sendCmd('TV_POWER')"><span>⏻</span> LIGAR / DESLIGAR</button>
+
+            <div class="tv-control-group">
+              <span class="tv-control-label">VOLUME</span>
+              <div class="tv-control-row">
+                <button class="tv-control-button" onclick="sendCmd('TV_VOLUME_DOWN')" aria-label="Diminuir volume">−</button>
+                <button class="tv-control-button tv-control-button-wide" onclick="sendCmd('TV_MUTE')">🔇 Mudo</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_VOLUME_UP')" aria-label="Aumentar volume">+</button>
+              </div>
+            </div>
+
+            <div class="tv-control-group">
+              <span class="tv-control-label">CANAIS</span>
+              <div class="tv-control-row">
+                <button class="tv-control-button" onclick="sendCmd('TV_CHANNEL_DOWN')">− CH</button>
+                <button class="tv-control-button tv-control-button-wide" onclick="sendCmd('TV_CHANNEL_LIST')">☷ CH LIST</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_CHANNEL_UP')">+ CH</button>
+              </div>
+            </div>
+
+            <div class="tv-control-group">
+              <span class="tv-control-label">NAVEGAÇÃO</span>
+              <div class="tv-dpad">
+                <span></span>
+                <button class="tv-control-button" onclick="sendCmd('TV_UP')" aria-label="Para cima">▲</button>
+                <span></span>
+                <button class="tv-control-button" onclick="sendCmd('TV_LEFT')" aria-label="Para a esquerda">◀</button>
+                <button class="tv-control-button tv-ok-button" onclick="sendCmd('TV_ENTER')">OK</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_RIGHT')" aria-label="Para a direita">▶</button>
+                <span></span>
+                <button class="tv-control-button" onclick="sendCmd('TV_DOWN')" aria-label="Para baixo">▼</button>
+                <span></span>
+              </div>
+              <div class="tv-control-row tv-action-row">
+                <button class="tv-control-button" onclick="sendCmd('TV_RETURN')">↩ Voltar</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_MENU')">☰ Menu</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_EXIT')">Sair</button>
+              </div>
+            </div>
+
+            <div class="tv-control-group">
+              <span class="tv-control-label">ATALHOS</span>
+              <div class="tv-control-row">
+                <button class="tv-control-button tv-control-button-wide" onclick="sendCmd('TV_TOOLS')">⚙ Tools</button>
+                <button class="tv-control-button tv-control-button-wide" onclick="sendCmd('TV_SOURCE')">▣ Source</button>
+              </div>
+            </div>
+
+            <div class="tv-control-group">
+              <span class="tv-control-label">NÚMEROS</span>
+              <div class="tv-number-pad">
+                <button class="tv-control-button" onclick="sendCmd('TV_1')">1</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_2')">2</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_3')">3</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_4')">4</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_5')">5</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_6')">6</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_7')">7</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_8')">8</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_9')">9</button>
+                <span></span>
+                <button class="tv-control-button" onclick="sendCmd('TV_0')">0</button>
+                <span></span>
+              </div>
+            </div>
+
+            <div class="tv-timer-card">
+              <div class="tv-timer-heading">
+                <div>
+                  <h3>Desligar automaticamente</h3>
+                  <p id="tv-timer-countdown" aria-live="polite">Desativado</p>
+                </div>
+                <span class="tv-timer-icon">⏲</span>
+              </div>
+              <div class="tv-timer-controls">
+                <button class="tv-control-button" onclick="adjustTvTimer(-30)" aria-label="Diminuir timer em 30 minutos">− 30 min</button>
+                <button class="tv-control-button tv-timer-quick" onclick="setTvTimer(30)">30 min rápido</button>
+                <button class="tv-control-button" onclick="adjustTvTimer(30)" aria-label="Aumentar timer em 30 minutos">+ 30 min</button>
+              </div>
+              <button class="tv-timer-cancel" onclick="cancelTvTimer()">Cancelar temporizador</button>
+              <p class="tv-note">Ao chegar a zero, o Node envia o comando POWER por infravermelho. Como a TV não confirma o estado, deixe-a ligada e evite usar o botão POWER durante a contagem.</p>
+            </div>
+            <p class="tv-note">Usa códigos Samsung IR de 32 bits; a resposta será conferida na TV.</p>
+          </div>
+        </section>
 
       </div>
 
@@ -1076,42 +1208,8 @@ body {
       <!-- ABA 3: AJUSTES -->
       <div id="tab-ajustes" class="tab-pane">
         <div class="tab-title">
-          <h2>Termostato Inteligente</h2>
-          <p>Automação por software para manter a temperatura do quarto estável.</p>
-        </div>
-
-        <div class="thermostat-card-modern">
-          <div class="therm-status-header">
-            <div class="therm-status-info">
-              <span class="lbl">Modo Termostato:</span>
-              <span class="badge" id="thermostat-mode-badge">DESLIGADO</span>
-            </div>
-            <div class="therm-status-info">
-              <span class="lbl">Alvo Definido:</span>
-              <span class="val" id="thermostat-target-val">-- &deg;C</span>
-            </div>
-          </div>
-          
-          <div class="therm-status-message">
-            <span class="lbl">Ação Atual:</span>
-            <span class="status-desc" id="thermostat-status-desc">Aguardando</span>
-          </div>
-
-          <div class="therm-adjust-section">
-            <span class="section-label">Definir Temperatura Alvo</span>
-            <div class="btn-group-auto">
-              <button class="btn-auto-temp" id="btn-alvo-18" onclick="sendCmd('ALVO_18')">18&deg;</button>
-              <button class="btn-auto-temp" id="btn-alvo-22" onclick="sendCmd('ALVO_22')">22&deg;</button>
-              <button class="btn-auto-temp" id="btn-alvo-23" onclick="sendCmd('ALVO_23')">23&deg;</button>
-              <button class="btn-auto-temp" id="btn-alvo-24" onclick="sendCmd('ALVO_24')">24&deg;</button>
-              <button class="btn-auto-temp" id="btn-alvo-25" onclick="sendCmd('ALVO_25')">25&deg;</button>
-            </div>
-          </div>
-
-          <div class="btn-auto-toggle-row">
-            <button class="btn-auto-on" id="btn-auto-on" onclick="sendCmd('AUTO_ON')">Ativar Termostato</button>
-            <button class="btn-auto-off" id="btn-auto-off" onclick="sendCmd('AUTO_OFF')">Desativar</button>
-          </div>
+          <h2>Ajustes do aparelho</h2>
+          <p>Configure opções do ar-condicionado e da conexão.</p>
         </div>
 
         <!-- Oscilação -->
@@ -1124,24 +1222,6 @@ body {
             <button class="btn-swing-mock" id="btn-swingh" onclick="toggleSwingH()">
               ⇄ HORIZ (LATERAL)
             </button>
-          </div>
-        </div>
-
-        <!-- Integração WhatsApp -->
-        <div class="thermostat-card-modern">
-          <div class="therm-status-header">
-            <div class="therm-status-info">
-              <span class="lbl">WhatsApp Bot:</span>
-              <span class="badge" id="whatsapp-badge">Desativado</span>
-            </div>
-            <div class="therm-status-info" style="align-items: flex-end;">
-              <span class="lbl">Status:</span>
-              <span class="badge" id="whatsapp-status-badge">--</span>
-            </div>
-          </div>
-          <div class="btn-auto-toggle-row">
-            <button class="btn-auto-on" id="btn-bot-on" onclick="sendCmd('BOT_ENABLE')">Ativar Bot</button>
-            <button class="btn-auto-off" id="btn-bot-off" onclick="sendCmd('BOT_DISABLE')">Desativar</button>
           </div>
         </div>
 
@@ -1184,22 +1264,24 @@ body {
   </div>
 
   <script>
-// TAC09CHSD AC - Frontend Controller Logic (zero external dependencies)
+// Casa IR - Frontend Controller Logic (zero external dependencies)
 
 let currentAcState = {};
-let currentAutoState = {};
 let isUpdating = false;
+let currentDevice = 'ac';
+let tvTimerActive = false;
+let tvTimerRemainingSeconds = 0;
 
 // Inicialização
 window.onload = function() {
   updateStatus();
-  fetchCuiabaWeather();
+  fetchCristoReiWeather();
   
   // Loop de polling a cada 2 segundos
   setInterval(updateStatus, 2000);
   
   // Atualiza clima a cada 5 minutos
-  setInterval(fetchCuiabaWeather, 300000);
+  setInterval(fetchCristoReiWeather, 300000);
 };
 
 // Alternar entre Abas
@@ -1214,15 +1296,33 @@ window.switchTab = function(tabName) {
   document.getElementById(`nav-${tabName}`).classList.add('active');
 };
 
-// Busca clima real de Cuiabá via Open-Meteo
-async function fetchCuiabaWeather() {
+window.switchDevice = function(device) {
+  currentDevice = device === 'tv' ? 'tv' : 'ac';
+  const isTv = currentDevice === 'tv';
+  document.getElementById('device-panel-ac').hidden = isTv;
+  document.getElementById('device-panel-tv').hidden = !isTv;
+  document.getElementById('device-select-ac').classList.toggle('active', !isTv);
+  document.getElementById('device-select-tv').classList.toggle('active', isTv);
+  document.getElementById('device-select-ac').setAttribute('aria-selected', String(!isTv));
+  document.getElementById('device-select-tv').setAttribute('aria-selected', String(isTv));
+
+  // AC timers and settings do not apply to the TV.
+  document.getElementById('nav-timer').hidden = isTv;
+  document.getElementById('nav-ajustes').hidden = isTv;
+  if (isTv && !document.getElementById('tab-inicio').classList.contains('active')) {
+    window.switchTab('inicio');
+  }
+};
+
+// Busca o clima atual de Cristo Rei, Várzea Grande, via Open-Meteo.
+async function fetchCristoReiWeather() {
   try {
-    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-15.6010&longitude=-56.0974&current_weather=true');
+    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-15.640970&longitude=-56.104550&current_weather=true');
     if (res.ok) {
       const data = await res.json();
       if (data && data.current_weather) {
         const tempVal = Math.round(data.current_weather.temperature);
-        document.getElementById('cuiaba-temp').innerText = tempVal;
+        document.getElementById('cristorei-temp').innerText = tempVal;
       }
     }
   } catch (error) {
@@ -1343,6 +1443,10 @@ async function updateStatus() {
     if (!response.ok) throw new Error('Falha na comunicação');
     
     const data = await response.json();
+
+    tvTimerActive = Boolean(data.tv_off_timer_active);
+    tvTimerRemainingSeconds = Number(data.tv_off_timer_remaining_seconds) || 0;
+    renderTvTimer();
     
     // Atualiza temperatura ambiente
     if (data.temp_real !== undefined) {
@@ -1362,14 +1466,6 @@ async function updateStatus() {
       syncAcUi(currentAcState);
     }
 
-    // Processa Termostato Auto
-    currentAutoState = {
-      mode: data.auto_mode,
-      alvo: data.auto_alvo,
-      status: data.auto_status
-    };
-    syncAutoUi(currentAutoState);
-
     // Atualiza o gráfico
     if (data.historico && data.historico.length > 0) {
       drawChart(data.historico);
@@ -1378,9 +1474,6 @@ async function updateStatus() {
     // Badge de conexão
     document.getElementById('conn-text-badge').innerText = 'CONECTADO';
     document.getElementById('conn-text-badge').style.color = '#10b981';
-
-    // Sincroniza UI do WhatsApp
-    syncBotUi(data);
 
   } catch (error) {
     console.error('Erro ao buscar status:', error);
@@ -1441,6 +1534,7 @@ function syncAcUi(state) {
   toggleUiClass('btn-health', state.health);
   toggleUiClass('btn-turbo', state.turbo);
   toggleUiClass('btn-light', state.light);
+  toggleUiClass('btn-quiet', state.quiet);
 
   updateTimerDisplay('timer-on-val', state.timer_on);
   updateTimerDisplay('timer-off-val', state.timer_off);
@@ -1475,70 +1569,6 @@ function formatMins(totalMins) {
   return `${mins} Minutos`;
 }
 
-// Sincroniza a aba do Termostato Inteligente
-function syncAutoUi(state) {
-  const badge = document.getElementById('thermostat-mode-badge');
-  const btnOn = document.getElementById('btn-auto-on');
-  const btnOff = document.getElementById('btn-auto-off');
-
-  if (state.mode) {
-    badge.innerText = 'ATIVADO';
-    badge.classList.add('active');
-    btnOn.classList.add('active');
-    btnOff.classList.remove('active');
-  } else {
-    badge.innerText = 'DESLIGADO';
-    badge.classList.remove('active');
-    btnOn.classList.remove('active');
-    btnOff.classList.add('active');
-  }
-
-  document.getElementById('thermostat-target-val').innerHTML = `${parseFloat(state.alvo).toFixed(1)} &deg;C`;
-  document.getElementById('thermostat-status-desc').innerText = state.status;
-
-  const alvos = [18, 22, 23, 24, 25];
-  alvos.forEach(val => {
-    const btn = document.getElementById(`btn-alvo-${val}`);
-    if (state.alvo === val) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
-  });
-}
-
-// Sincroniza UI do WhatsApp Bot
-function syncBotUi(data) {
-  const badge = document.getElementById('whatsapp-badge');
-  const statusBadge = document.getElementById('whatsapp-status-badge');
-  const btnOn = document.getElementById('btn-bot-on');
-  const btnOff = document.getElementById('btn-bot-off');
-
-  const enabled = data.whatsapp_enabled;
-  if (enabled) {
-    badge.innerText = 'ATIVADO';
-    badge.style.color = '#14b8a6';
-    btnOn.classList.add('active');
-    btnOff.classList.remove('active');
-  } else {
-    badge.innerText = 'DESATIVADO';
-    badge.style.color = '#64748b';
-    btnOn.classList.remove('active');
-    btnOff.classList.add('active');
-  }
-
-  if (data.whatsapp_status) {
-    statusBadge.innerText = data.whatsapp_status;
-    if (data.whatsapp_status.includes('Sucesso')) {
-      statusBadge.style.color = '#10b981';
-    } else if (data.whatsapp_status.includes('Erro') || data.whatsapp_status.includes('Falha')) {
-      statusBadge.style.color = '#ef4444';
-    } else {
-      statusBadge.style.color = '#64748b';
-    }
-  }
-}
-
 // Envio de comandos HTTP
 async function sendCmd(command) {
   try {
@@ -1550,6 +1580,39 @@ async function sendCmd(command) {
     console.error('Erro ao enviar comando:', error);
   }
 }
+
+function renderTvTimer() {
+  const display = document.getElementById('tv-timer-countdown');
+  if (!display) return;
+  if (!tvTimerActive || tvTimerRemainingSeconds <= 0) {
+    display.innerText = 'Desativado';
+    return;
+  }
+
+  const totalMinutes = Math.ceil(tvTimerRemainingSeconds / 60);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  const remaining = hours > 0 ? `${hours}h ${minutes}min` : `${minutes} min`;
+  display.innerText = `Faltam ${remaining}`;
+}
+
+window.setTvTimer = function(minutes) {
+  sendCmd(`TV_TIMER_SET_${minutes}`);
+};
+
+window.adjustTvTimer = function(deltaMinutes) {
+  const currentMinutes = tvTimerActive ? Math.ceil(tvTimerRemainingSeconds / 60) : 0;
+  const nextMinutes = Math.min(720, currentMinutes + deltaMinutes);
+  if (nextMinutes <= 0) {
+    window.cancelTvTimer();
+    return;
+  }
+  window.setTvTimer(nextMinutes);
+};
+
+window.cancelTvTimer = function() {
+  sendCmd('TV_TIMER_CANCEL');
+};
 
 window.togglePower = function() {
   sendCmd('TOGGLE_POWER');
@@ -1580,7 +1643,7 @@ window.toggleSwingH = function() {
 };
 
 window.toggleSpecial = function(name) {
-  const key = { 'turbo': 'turbo', 'eco': 'econo', 'health': 'health', 'light': 'light' }[name];
+  const key = { 'turbo': 'turbo', 'eco': 'econo', 'health': 'health', 'light': 'light', 'quiet': 'quiet' }[name];
   const isCurrentlyActive = currentAcState[key];
   const cmdPrefix = name.toUpperCase();
   

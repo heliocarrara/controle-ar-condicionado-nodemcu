@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TAC09CHSD AC</title>
+  <title>Casa IR</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,12 +13,17 @@
     <!-- HEADER -->
     <header class="app-header">
       <div class="header-placeholder"></div>
-      <h1>TAC09CHSD AC</h1>
+      <h1>CASA IR</h1>
       <div class="header-placeholder"></div>
     </header>
 
     <!-- CONTEÚDO PRINCIPAL (COM ABAS) -->
     <main class="app-content">
+
+      <div class="device-switch" role="tablist" aria-label="Selecionar aparelho">
+        <button class="device-switch-btn active" id="device-select-ac" onclick="switchDevice('ac')" role="tab" aria-selected="true">❄ Ar-condicionado</button>
+        <button class="device-switch-btn" id="device-select-tv" onclick="switchDevice('tv')" role="tab" aria-selected="false">📺 Televisão</button>
+      </div>
 
       <!-- ABA 1: INÍCIO -->
       <div id="tab-inicio" class="tab-pane active">
@@ -31,8 +36,8 @@
             <span class="info-unit">&deg;C</span>
           </div>
           <div class="info-card">
-            <span class="info-label">JD. ITÁLIA:</span>
-            <span class="info-val" id="cuiaba-temp">--</span>
+            <span class="info-label">CRISTO REI:</span>
+            <span class="info-val" id="cristorei-temp">--</span>
             <span class="info-unit">&deg;C</span>
           </div>
           <div class="info-card ram-card">
@@ -47,6 +52,7 @@
           </div>
         </div>
 
+        <section class="device-panel" id="device-panel-ac" aria-label="Controle do ar-condicionado">
         <!-- Widget Central de Temperatura Alvo -->
         <div class="temp-screen-card">
           <div class="screen-status-indicator">
@@ -121,6 +127,10 @@
             <span>💡</span>
             <span>LUZ</span>
           </button>
+          <button class="btn-special-rect" id="btn-quiet" onclick="toggleSpecial('quiet')">
+            <span>🔇</span>
+            <span>SILENCIOSO</span>
+          </button>
         </div>
 
         <!-- Botão Ligar/Desligar -->
@@ -137,6 +147,104 @@
           <button class="btn-preset" onclick="sendCmd('P23_MED')">23°C Média</button>
           <button class="btn-preset" onclick="sendCmd('P22_LOW')">22°C Baixa</button>
         </div>
+        </section>
+
+        <section class="device-panel tv-panel" id="device-panel-tv" aria-label="Controle da televisão Samsung" hidden>
+          <div class="tv-remote-card">
+            <div class="tv-remote-heading">
+              <span class="tv-screen-icon">📺</span>
+              <div>
+                <h2>TV Samsung</h2>
+                <p>Controle IR LE-7270</p>
+              </div>
+              <span class="tv-status-dot" aria-label="Pronta para enviar comandos"></span>
+            </div>
+
+            <button class="tv-power-button" onclick="sendCmd('TV_POWER')"><span>⏻</span> LIGAR / DESLIGAR</button>
+
+            <div class="tv-control-group">
+              <span class="tv-control-label">VOLUME</span>
+              <div class="tv-control-row">
+                <button class="tv-control-button" onclick="sendCmd('TV_VOLUME_DOWN')" aria-label="Diminuir volume">−</button>
+                <button class="tv-control-button tv-control-button-wide" onclick="sendCmd('TV_MUTE')">🔇 Mudo</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_VOLUME_UP')" aria-label="Aumentar volume">+</button>
+              </div>
+            </div>
+
+            <div class="tv-control-group">
+              <span class="tv-control-label">CANAIS</span>
+              <div class="tv-control-row">
+                <button class="tv-control-button" onclick="sendCmd('TV_CHANNEL_DOWN')">− CH</button>
+                <button class="tv-control-button tv-control-button-wide" onclick="sendCmd('TV_CHANNEL_LIST')">☷ CH LIST</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_CHANNEL_UP')">+ CH</button>
+              </div>
+            </div>
+
+            <div class="tv-control-group">
+              <span class="tv-control-label">NAVEGAÇÃO</span>
+              <div class="tv-dpad">
+                <span></span>
+                <button class="tv-control-button" onclick="sendCmd('TV_UP')" aria-label="Para cima">▲</button>
+                <span></span>
+                <button class="tv-control-button" onclick="sendCmd('TV_LEFT')" aria-label="Para a esquerda">◀</button>
+                <button class="tv-control-button tv-ok-button" onclick="sendCmd('TV_ENTER')">OK</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_RIGHT')" aria-label="Para a direita">▶</button>
+                <span></span>
+                <button class="tv-control-button" onclick="sendCmd('TV_DOWN')" aria-label="Para baixo">▼</button>
+                <span></span>
+              </div>
+              <div class="tv-control-row tv-action-row">
+                <button class="tv-control-button" onclick="sendCmd('TV_RETURN')">↩ Voltar</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_MENU')">☰ Menu</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_EXIT')">Sair</button>
+              </div>
+            </div>
+
+            <div class="tv-control-group">
+              <span class="tv-control-label">ATALHOS</span>
+              <div class="tv-control-row">
+                <button class="tv-control-button tv-control-button-wide" onclick="sendCmd('TV_TOOLS')">⚙ Tools</button>
+                <button class="tv-control-button tv-control-button-wide" onclick="sendCmd('TV_SOURCE')">▣ Source</button>
+              </div>
+            </div>
+
+            <div class="tv-control-group">
+              <span class="tv-control-label">NÚMEROS</span>
+              <div class="tv-number-pad">
+                <button class="tv-control-button" onclick="sendCmd('TV_1')">1</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_2')">2</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_3')">3</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_4')">4</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_5')">5</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_6')">6</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_7')">7</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_8')">8</button>
+                <button class="tv-control-button" onclick="sendCmd('TV_9')">9</button>
+                <span></span>
+                <button class="tv-control-button" onclick="sendCmd('TV_0')">0</button>
+                <span></span>
+              </div>
+            </div>
+
+            <div class="tv-timer-card">
+              <div class="tv-timer-heading">
+                <div>
+                  <h3>Desligar automaticamente</h3>
+                  <p id="tv-timer-countdown" aria-live="polite">Desativado</p>
+                </div>
+                <span class="tv-timer-icon">⏲</span>
+              </div>
+              <div class="tv-timer-controls">
+                <button class="tv-control-button" onclick="adjustTvTimer(-30)" aria-label="Diminuir timer em 30 minutos">− 30 min</button>
+                <button class="tv-control-button tv-timer-quick" onclick="setTvTimer(30)">30 min rápido</button>
+                <button class="tv-control-button" onclick="adjustTvTimer(30)" aria-label="Aumentar timer em 30 minutos">+ 30 min</button>
+              </div>
+              <button class="tv-timer-cancel" onclick="cancelTvTimer()">Cancelar temporizador</button>
+              <p class="tv-note">Ao chegar a zero, o Node envia o comando POWER por infravermelho. Como a TV não confirma o estado, deixe-a ligada e evite usar o botão POWER durante a contagem.</p>
+            </div>
+            <p class="tv-note">Usa códigos Samsung IR de 32 bits; a resposta será conferida na TV.</p>
+          </div>
+        </section>
 
       </div>
 
@@ -181,42 +289,8 @@
       <!-- ABA 3: AJUSTES -->
       <div id="tab-ajustes" class="tab-pane">
         <div class="tab-title">
-          <h2>Termostato Inteligente</h2>
-          <p>Automação por software para manter a temperatura do quarto estável.</p>
-        </div>
-
-        <div class="thermostat-card-modern">
-          <div class="therm-status-header">
-            <div class="therm-status-info">
-              <span class="lbl">Modo Termostato:</span>
-              <span class="badge" id="thermostat-mode-badge">DESLIGADO</span>
-            </div>
-            <div class="therm-status-info">
-              <span class="lbl">Alvo Definido:</span>
-              <span class="val" id="thermostat-target-val">-- &deg;C</span>
-            </div>
-          </div>
-          
-          <div class="therm-status-message">
-            <span class="lbl">Ação Atual:</span>
-            <span class="status-desc" id="thermostat-status-desc">Aguardando</span>
-          </div>
-
-          <div class="therm-adjust-section">
-            <span class="section-label">Definir Temperatura Alvo</span>
-            <div class="btn-group-auto">
-              <button class="btn-auto-temp" id="btn-alvo-18" onclick="sendCmd('ALVO_18')">18&deg;</button>
-              <button class="btn-auto-temp" id="btn-alvo-22" onclick="sendCmd('ALVO_22')">22&deg;</button>
-              <button class="btn-auto-temp" id="btn-alvo-23" onclick="sendCmd('ALVO_23')">23&deg;</button>
-              <button class="btn-auto-temp" id="btn-alvo-24" onclick="sendCmd('ALVO_24')">24&deg;</button>
-              <button class="btn-auto-temp" id="btn-alvo-25" onclick="sendCmd('ALVO_25')">25&deg;</button>
-            </div>
-          </div>
-
-          <div class="btn-auto-toggle-row">
-            <button class="btn-auto-on" id="btn-auto-on" onclick="sendCmd('AUTO_ON')">Ativar Termostato</button>
-            <button class="btn-auto-off" id="btn-auto-off" onclick="sendCmd('AUTO_OFF')">Desativar</button>
-          </div>
+          <h2>Ajustes do aparelho</h2>
+          <p>Configure opções do ar-condicionado e da conexão.</p>
         </div>
 
         <!-- Oscilação -->
@@ -229,24 +303,6 @@
             <button class="btn-swing-mock" id="btn-swingh" onclick="toggleSwingH()">
               ⇄ HORIZ (LATERAL)
             </button>
-          </div>
-        </div>
-
-        <!-- Integração WhatsApp -->
-        <div class="thermostat-card-modern">
-          <div class="therm-status-header">
-            <div class="therm-status-info">
-              <span class="lbl">WhatsApp Bot:</span>
-              <span class="badge" id="whatsapp-badge">Desativado</span>
-            </div>
-            <div class="therm-status-info" style="align-items: flex-end;">
-              <span class="lbl">Status:</span>
-              <span class="badge" id="whatsapp-status-badge">--</span>
-            </div>
-          </div>
-          <div class="btn-auto-toggle-row">
-            <button class="btn-auto-on" id="btn-bot-on" onclick="sendCmd('BOT_ENABLE')">Ativar Bot</button>
-            <button class="btn-auto-off" id="btn-bot-off" onclick="sendCmd('BOT_DISABLE')">Desativar</button>
           </div>
         </div>
 

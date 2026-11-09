@@ -1,6 +1,6 @@
-# Documentação da API - Controle Ar Condicionado TCL
+# Documentação da API - Casa IR
 
-Esta API permite o controle remoto de um Ar Condicionado da marca TCL utilizando um NodeMCU (ESP8266) como emissor infravermelho.
+Esta API permite consultar o sensor ambiente e enviar comandos para o NodeMCU (ESP8266), que atua como emissor infravermelho na rede local. O ar-condicionado Bravolt usa o protocolo TCL112AC de estado completo.
 
 ## URL Base
 Se o mDNS estiver funcionando corretamente na sua rede:
@@ -14,7 +14,7 @@ Ou pelo IP diretamente (consulte o Monitor Serial para descobrir o IP atribuído
 ## Autenticação
 Todos os endpoints da API exigem uma chave de segurança passada via *query parameter* `key`.
 
-*   **Chave Padrão:** `senha123` (Pode ser alterada na variável `API_KEY` do arquivo `main.cpp`).
+*   A chave `API_KEY` é configurada em `include/secrets.h`.
 
 ---
 
@@ -127,3 +127,9 @@ A API possui uma interface HTML básica embutida para facilitar testes manuais p
 *   **Acesso:** `http://meuar.local/`
 
 Nesta interface, os botões utilizam JavaScript (`fetch()`) para realizar as chamadas para os endpoints descritos acima, apresentando as respostas em caixas de alerta.
+
+## Comandos da TV Samsung
+
+A interface envia comandos IR Samsung de 32 bits pela rota local `/cmd?c=...`: `TV_POWER`, `TV_VOLUME_UP`, `TV_VOLUME_DOWN`, `TV_MUTE`, `TV_CHANNEL_UP`, `TV_CHANNEL_DOWN`, `TV_CHANNEL_LIST`, `TV_UP`, `TV_DOWN`, `TV_LEFT`, `TV_RIGHT`, `TV_ENTER`, `TV_RETURN`, `TV_EXIT`, `TV_TOOLS`, `TV_MENU`, `TV_SOURCE` e `TV_0` até `TV_9`. O temporizador local usa `TV_TIMER_SET_<minutos>` (1 a 720) e `TV_TIMER_CANCEL`.
+
+O controle LE-7270 e a TV precisam ser conferidos juntos; como o infravermelho não recebe confirmação da TV, o status exibido não representa o estado real do aparelho.

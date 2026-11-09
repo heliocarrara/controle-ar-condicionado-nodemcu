@@ -1,19 +1,21 @@
-// TAC09CHSD AC - Frontend Controller Logic (zero external dependencies)
+// Casa IR - Frontend Controller Logic (zero external dependencies)
 
 let currentAcState = {};
-let currentAutoState = {};
 let isUpdating = false;
+let currentDevice = 'ac';
+let tvTimerActive = false;
+let tvTimerRemainingSeconds = 0;
 
 // Inicialização
 window.onload = function() {
   updateStatus();
-  fetchCuiabaWeather();
+  fetchCristoReiWeather();
   
   // Loop de polling a cada 2 segundos
   setInterval(updateStatus, 2000);
   
   // Atualiza clima a cada 5 minutos
-  setInterval(fetchCuiabaWeather, 300000);
+  setInterval(fetchCristoReiWeather, 300000);
 };
 
 // Alternar entre Abas
@@ -28,15 +30,33 @@ window.switchTab = function(tabName) {
   document.getElementById(`nav-${tabName}`).classList.add('active');
 };
 
-// Busca clima real de Cuiabá via Open-Meteo
-async function fetchCuiabaWeather() {
+window.switchDevice = function(device) {
+  currentDevice = device === 'tv' ? 'tv' : 'ac';
+  const isTv = currentDevice === 'tv';
+  document.getElementById('device-panel-ac').hidden = isTv;
+  document.getElementById('device-panel-tv').hidden = !isTv;
+  document.getElementById('device-select-ac').classList.toggle('active', !isTv);
+  document.getElementById('device-select-tv').classList.toggle('active', isTv);
+  document.getElementById('device-select-ac').setAttribute('aria-selected', String(!isTv));
+  document.getElementById('device-select-tv').setAttribute('aria-selected', String(isTv));
+
+  // AC timers and settings do not apply to the TV.
+  document.getElementById('nav-timer').hidden = isTv;
+  document.getElementById('nav-ajustes').hidden = isTv;
+  if (isTv && !document.getElementById('tab-inicio').classList.contains('active')) {
+    window.switchTab('inicio');
+  }
+};
+
+// Busca o clima atual de Cristo Rei, Várzea Grande, via Open-Meteo.
+async function fetchCristoReiWeather() {
   try {
-    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-15.6010&longitude=-56.0974&current_weather=true');
+    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-15.640970&longitude=-56.104550&current_weather=true');
     if (res.ok) {
       const data = await res.json();
       if (data && data.current_weather) {
         const tempVal = Math.round(data.current_weather.temperature);
-        document.getElementById('cuiaba-temp').innerText = tempVal;
+        document.getElementById('cristorei-temp').innerText = tempVal;
       }
     }
   } catch (error) {
@@ -157,6 +177,10 @@ async function updateStatus() {
     if (!response.ok) throw new Error('Falha na comunicação');
     
     const data = await response.json();
+
+    tvTimerActive = Boolean(data.tv_off_timer_active);
+    tvTimerRemainingSeconds = Number(data.tv_off_timer_remaining_seconds) || 0;
+    renderTvTimer();
     
     // Atualiza temperatura ambiente
     if (data.temp_real !== undefined) {
@@ -176,14 +200,6 @@ async function updateStatus() {
       syncAcUi(currentAcState);
     }
 
-    // Processa Termostato Auto
-    currentAutoState = {
-      mode: data.auto_mode,
-      alvo: data.auto_alvo,
-      status: data.auto_status
-    };
-    syncAutoUi(currentAutoState);
-
     // Atualiza o gráfico
     if (data.historico && data.historico.length > 0) {
       drawChart(data.historico);
@@ -192,9 +208,6 @@ async function updateStatus() {
     // Badge de conexão
     document.getElementById('conn-text-badge').innerText = 'CONECTADO';
     document.getElementById('conn-text-badge').style.color = '#10b981';
-
-    // Sincroniza UI do WhatsApp
-    syncBotUi(data);
 
   } catch (error) {
     console.error('Erro ao buscar status:', error);
@@ -255,6 +268,7 @@ function syncAcUi(state) {
   toggleUiClass('btn-health', state.health);
   toggleUiClass('btn-turbo', state.turbo);
   toggleUiClass('btn-light', state.light);
+  toggleUiClass('btn-quiet', state.quiet);
 
   updateTimerDisplay('timer-on-val', state.timer_on);
   updateTimerDisplay('timer-off-val', state.timer_off);
@@ -289,70 +303,6 @@ function formatMins(totalMins) {
   return `${mins} Minutos`;
 }
 
-// Sincroniza a aba do Termostato Inteligente
-function syncAutoUi(state) {
-  const badge = document.getElementById('thermostat-mode-badge');
-  const btnOn = document.getElementById('btn-auto-on');
-  const btnOff = document.getElementById('btn-auto-off');
-
-  if (state.mode) {
-    badge.innerText = 'ATIVADO';
-    badge.classList.add('active');
-    btnOn.classList.add('active');
-    btnOff.classList.remove('active');
-  } else {
-    badge.innerText = 'DESLIGADO';
-    badge.classList.remove('active');
-    btnOn.classList.remove('active');
-    btnOff.classList.add('active');
-  }
-
-  document.getElementById('thermostat-target-val').innerHTML = `${parseFloat(state.alvo).toFixed(1)} &deg;C`;
-  document.getElementById('thermostat-status-desc').innerText = state.status;
-
-  const alvos = [18, 22, 23, 24, 25];
-  alvos.forEach(val => {
-    const btn = document.getElementById(`btn-alvo-${val}`);
-    if (state.alvo === val) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
-  });
-}
-
-// Sincroniza UI do WhatsApp Bot
-function syncBotUi(data) {
-  const badge = document.getElementById('whatsapp-badge');
-  const statusBadge = document.getElementById('whatsapp-status-badge');
-  const btnOn = document.getElementById('btn-bot-on');
-  const btnOff = document.getElementById('btn-bot-off');
-
-  const enabled = data.whatsapp_enabled;
-  if (enabled) {
-    badge.innerText = 'ATIVADO';
-    badge.style.color = '#14b8a6';
-    btnOn.classList.add('active');
-    btnOff.classList.remove('active');
-  } else {
-    badge.innerText = 'DESATIVADO';
-    badge.style.color = '#64748b';
-    btnOn.classList.remove('active');
-    btnOff.classList.add('active');
-  }
-
-  if (data.whatsapp_status) {
-    statusBadge.innerText = data.whatsapp_status;
-    if (data.whatsapp_status.includes('Sucesso')) {
-      statusBadge.style.color = '#10b981';
-    } else if (data.whatsapp_status.includes('Erro') || data.whatsapp_status.includes('Falha')) {
-      statusBadge.style.color = '#ef4444';
-    } else {
-      statusBadge.style.color = '#64748b';
-    }
-  }
-}
-
 // Envio de comandos HTTP
 async function sendCmd(command) {
   try {
@@ -364,6 +314,39 @@ async function sendCmd(command) {
     console.error('Erro ao enviar comando:', error);
   }
 }
+
+function renderTvTimer() {
+  const display = document.getElementById('tv-timer-countdown');
+  if (!display) return;
+  if (!tvTimerActive || tvTimerRemainingSeconds <= 0) {
+    display.innerText = 'Desativado';
+    return;
+  }
+
+  const totalMinutes = Math.ceil(tvTimerRemainingSeconds / 60);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  const remaining = hours > 0 ? `${hours}h ${minutes}min` : `${minutes} min`;
+  display.innerText = `Faltam ${remaining}`;
+}
+
+window.setTvTimer = function(minutes) {
+  sendCmd(`TV_TIMER_SET_${minutes}`);
+};
+
+window.adjustTvTimer = function(deltaMinutes) {
+  const currentMinutes = tvTimerActive ? Math.ceil(tvTimerRemainingSeconds / 60) : 0;
+  const nextMinutes = Math.min(720, currentMinutes + deltaMinutes);
+  if (nextMinutes <= 0) {
+    window.cancelTvTimer();
+    return;
+  }
+  window.setTvTimer(nextMinutes);
+};
+
+window.cancelTvTimer = function() {
+  sendCmd('TV_TIMER_CANCEL');
+};
 
 window.togglePower = function() {
   sendCmd('TOGGLE_POWER');
@@ -394,7 +377,7 @@ window.toggleSwingH = function() {
 };
 
 window.toggleSpecial = function(name) {
-  const key = { 'turbo': 'turbo', 'eco': 'econo', 'health': 'health', 'light': 'light' }[name];
+  const key = { 'turbo': 'turbo', 'eco': 'econo', 'health': 'health', 'light': 'light', 'quiet': 'quiet' }[name];
   const isCurrentlyActive = currentAcState[key];
   const cmdPrefix = name.toUpperCase();
   

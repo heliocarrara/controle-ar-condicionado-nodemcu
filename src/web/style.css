@@ -1,4 +1,4 @@
-/* TAC09CHSD AC - Theme CSS (zero external dependencies) */
+/* Casa IR - Theme CSS (zero external dependencies) */
 
 :root {
   --bg-app: #f1f5f9;
@@ -90,6 +90,152 @@ body {
   padding: 1rem;
   padding-bottom: 1.5rem;
 }
+
+.device-switch {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.875rem;
+  padding: 0.25rem;
+  border-radius: 14px;
+  background: #e2e8f0;
+}
+
+.device-switch-btn {
+  flex: 1;
+  min-height: 42px;
+  border: 0;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.device-switch-btn.active {
+  color: #fff;
+  background: var(--bg-dark-header);
+  box-shadow: var(--shadow-out);
+}
+
+.device-panel[hidden],
+.nav-item[hidden] {
+  display: none !important;
+}
+
+.device-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.tv-remote-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1rem;
+  border: 1px solid var(--border-light);
+  border-radius: 18px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-out);
+}
+
+.tv-remote-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.tv-screen-icon { font-size: 1.8rem; }
+.tv-remote-heading h2 { font-size: 1.05rem; }
+.tv-remote-heading p, .tv-note { color: var(--text-muted); font-size: 0.75rem; }
+.tv-status-dot { width: 10px; height: 10px; margin-left: auto; border-radius: 50%; background: #10b981; }
+
+.tv-power-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 58px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--color-power-red);
+  color: #fff;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.tv-power-button span { font-size: 1.35rem; }
+.tv-control-group { display: flex; flex-direction: column; gap: 0.55rem; }
+.tv-control-label { color: var(--text-muted); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; }
+.tv-control-row { display: flex; align-items: center; justify-content: center; gap: 0.75rem; }
+
+.tv-control-button {
+  min-width: 54px;
+  min-height: 48px;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid var(--border-light);
+  border-radius: 13px;
+  background: #fff;
+  color: var(--text-dark);
+  font: inherit;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-button);
+}
+
+.tv-control-button-wide { flex: 1; font-size: 0.85rem; }
+.tv-control-hint { min-width: 70px; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
+.tv-source-button { width: 100%; font-size: 0.85rem; }
+.tv-note { line-height: 1.4; text-align: center; }
+
+.tv-dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 58px);
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.tv-dpad .tv-control-button { min-width: 58px; padding: 0.4rem; }
+.tv-dpad .tv-ok-button { border-radius: 50%; background: #e2e8f0; }
+.tv-action-row { flex-wrap: wrap; }
+.tv-action-row .tv-control-button { flex: 1; min-width: 82px; font-size: 0.78rem; }
+
+.tv-number-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.tv-number-pad .tv-control-button { width: 100%; }
+
+.tv-timer-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.9rem;
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  background: #eef2ff;
+}
+
+.tv-timer-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tv-timer-heading h3 { font-size: 0.95rem; }
+.tv-timer-heading p { margin-top: 0.2rem; color: #4338ca; font-size: 0.85rem; font-weight: 800; }
+.tv-timer-icon { font-size: 1.5rem; }
+.tv-timer-controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; }
+.tv-timer-controls .tv-control-button { min-width: 0; padding: 0.5rem 0.25rem; font-size: 0.72rem; }
+.tv-timer-controls .tv-timer-quick { background: #4338ca; color: #fff; border-color: #4338ca; }
+.tv-timer-cancel { align-self: center; padding: 0.4rem 0.6rem; border: 0; background: transparent; color: #b91c1c; font: inherit; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
 
 .tab-pane {
   display: none;
@@ -608,128 +754,6 @@ body {
   font-weight: 700;
 }
 .btn-clear-timer:hover { background-color: rgba(239, 68, 68, 0.2); }
-
-.thermostat-card-modern {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: 16px;
-  padding: 1.25rem;
-  box-shadow: var(--shadow-out);
-  display: flex;
-  flex-direction: column;
-  gap: 0.875rem;
-}
-
-.therm-status-header {
-  display: flex;
-  justify-content: space-between;
-  border-bottom: 1.5px solid #f1f5f9;
-  padding-bottom: 0.625rem;
-}
-
-.therm-status-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-}
-
-.therm-status-info .lbl {
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.therm-status-info .badge {
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: var(--text-muted);
-}
-.therm-status-info .badge.active { color: #14b8a6; }
-
-.therm-status-info .val {
-  font-size: 0.95rem;
-  font-weight: 800;
-}
-
-.therm-status-message {
-  display: flex;
-  justify-content: space-between;
-  background-color: #f1f5f9;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  font-size: 0.775rem;
-}
-.therm-status-message .lbl { color: var(--text-muted); font-weight: 600; }
-.therm-status-message .status-desc { font-weight: 700; color: var(--text-dark); }
-
-.therm-adjust-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.therm-adjust-section .section-label {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.btn-group-auto {
-  display: flex;
-  gap: 0.25rem;
-}
-
-.btn-auto-temp {
-  flex: 1;
-  background-color: #f1f5f9;
-  border: 1px solid var(--border-light);
-  border-radius: 8px;
-  padding: 0.5rem 0;
-  font-family: var(--font-family);
-  font-size: 0.775rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: var(--transition-normal);
-  text-align: center;
-}
-.btn-auto-temp:hover { background-color: #cbd5e1; }
-.btn-auto-temp.active {
-  background-color: #14b8a6;
-  border-color: #14b8a6;
-  color: white;
-}
-
-.btn-auto-toggle-row {
-  display: flex;
-  gap: 0.5rem;
-}
-.btn-auto-on {
-  flex: 2;
-  background-color: rgba(20, 184, 166, 0.1);
-  border: 1px solid rgba(20, 184, 166, 0.2);
-  color: #14b8a6;
-  padding: 0.75rem;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 0.85rem;
-  cursor: pointer;
-  font-family: var(--font-family);
-}
-.btn-auto-on.active {
-  background-color: #14b8a6;
-  color: white;
-  border-color: #14b8a6;
-}
-.btn-auto-off {
-  flex: 1;
-  background-color: #e2e8f0;
-  border: 1px solid var(--border-light);
-  color: var(--text-dark);
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: var(--font-family);
-}
 
 .chart-card-modern {
   background-color: var(--bg-card);

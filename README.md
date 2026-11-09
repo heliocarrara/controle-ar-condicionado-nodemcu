@@ -1,6 +1,6 @@
-# Controle de Ar Condicionado NodeMCU (ESP8266)
+# Casa IR — controle de aparelhos por infravermelho
 
-Este projeto permite controlar um ar condicionado da marca TCL utilizando um microcontrolador NodeMCU (ESP8266) como emissor infravermelho (IR), disponibilizando uma API REST e uma interface Web moderna em rede local.
+Este projeto usa um NodeMCU (ESP8266) como emissor infravermelho e disponibiliza uma interface web e uma API REST na rede local. O app está sendo preparado para o ar-condicionado Bravolt TECH12BROIN/BRAVOLTIND12K e para uma TV Samsung não smart.
 
 ## 🚀 Funcionalidades
 
@@ -12,11 +12,11 @@ Este projeto permite controlar um ar condicionado da marca TCL utilizando um mic
 - **Direcionamento do Vento (Swing):** Oscilação vertical automática ou fixação em 5 posições distintas; controle de oscilação horizontal (esquerda/direita).
 - **Funções Especiais:** Modo Eco (Modo Econômico), Turbo (Resfriamento Rápido), Visor LED (liga/desliga visor de temperatura do aparelho), Quiet (Silencioso) e Filtro Health.
 - **Temporizadores (Timers):** Programar o desligamento ou ligamento em passos de 20 minutos (até 12 horas).
-- **Termostato Inteligente:** Automação local opcional que liga/desliga o ar baseado nas leituras de um sensor DHT22 conectado ao NodeMCU para manter a temperatura do quarto estável.
-- **Histórico Gráfico:** Gráfico de temperatura em tempo real dos últimos 20 minutos (canvas nativo, sem bibliotecas externas).
+- **Sensor ambiente:** Leitura de temperatura e umidade pelo DHT22 e gráfico de temperatura dos últimos 20 minutos; não controla automaticamente o ar.
+- **TV Samsung:** Controle por infravermelho para energia, volume, canais, navegação e números, além de temporizador local para desligar em intervalos ajustáveis de 30 minutos.
+- **Ar-condicionado Bravolt 12.000 BTU:** Controle pelo protocolo TCL112AC em estado completo, compatível com o mapeamento atual da biblioteca.
 - **Monitor de RAM:** Percentual de uso da memória com barra visual na tela inicial e log no serial a cada 60s.
 - **Reinicialização via Web:** Botão "Reiniciar NodeMCU" na aba Ajustes.
-- **Integração WhatsApp Bot:** Suporte a comando via fila HTTP (desativado por padrão, ativável pela interface).
 - **Autenticação simples** baseada em chave de API para endpoints REST.
 
 ---
@@ -50,7 +50,7 @@ Para manter o desenvolvimento limpo e fácil de atualizar, a interface Web foi s
 
 - **Hardware:** NodeMCU (ESP8266) + LED Emissor IR + Sensor DHT22.
 - **Framework:** Arduino / PlatformIO.
-- **Bibliotecas:** `IRremoteESP8266` (Protocolo TCL 112 bits), `DHT sensor library`, `ArduinoJson`.
+- **Bibliotecas:** `IRremoteESP8266` (TCL112AC para o Bravolt e Samsung IR para a TV), `DHT sensor library`, `ArduinoJson`.
 - **Frontend:** HTML5, CSS3 Custom Properties, Vanilla JavaScript (Fetch API + ES7). **Zero dependências externas** — sem CDN, sem Google Fonts, sem bibliotecas de ícones ou gráficos.
 
 ---
@@ -69,7 +69,7 @@ Para detalhes sobre os endpoints, métodos e parâmetros suportados para integra
 
 1. Clone o repositório.
 2. Abra o projeto no VSCode com a extensão **PlatformIO** instalada.
-3. Configure as credenciais da sua rede Wi-Fi e a `API_KEY` desejada no arquivo [main.cpp](file:///c:/Users/helio/source/repos/nodemcu/NodeMCU-ESP8266/src/main.cpp).
+3. Configure as credenciais Wi-Fi e a `API_KEY` em `include/secrets.h` (arquivo local ignorado pelo Git).
 4. *(Opcional)* Se quiser alterar o visual ou lógica da interface, edite os arquivos correspondentes na pasta [src/web/](file:///c:/Users/helio/source/repos/nodemcu/NodeMCU-ESP8266/src/web/).
 5. Conecte o NodeMCU na porta USB e clique no botão **Upload** do PlatformIO. O script de compilação web rodará de forma totalmente transparente antes de compilar o C++.
 6. Monte o circuito do LED infravermelho no pino de transmissão (`PINO_TX = 5`, que equivale ao pino D1 do NodeMCU).

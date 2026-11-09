@@ -1,11 +1,11 @@
 #include <Arduino.h> 
 #include <ESP8266WiFi.h> 
-#include <WiFiClientSecure.h>
 #include <ESP8266WebServer.h> 
 #include <ESP8266mDNS.h> 
 #include <ESP8266HTTPClient.h>
 #include <DHT.h> 
 #include <IRremoteESP8266.h> 
+#include <IRsend.h>
 #include <ir_Tcl.h> 
 #include <ArduinoJson.h> 
 #include "webpage.h" 
@@ -22,7 +22,12 @@
 // --- INSTÂNCIAS --- 
 DHT dht(DHTPIN, DHTTYPE, 15); // count=15 melhora leitura em ESP8266 com WiFi ativo
 IRTcl112Ac ac(PINO_TX); 
+IRsend tvIr(PINO_TX);
 ESP8266WebServer server(80); 
+
+bool tvOffTimerActive = false;
+uint32_t tvOffTimerDeadlineMs = 0;
+const uint16_t kTvOffTimerMaxMinutes = 720;
  
 float tempReal = 0; 
 float umidadeReal = 0; 
@@ -33,20 +38,28 @@ int historicoIndex = 0;
 unsigned long ultimoTempoHistorico = 0;
 bool historicoCheio = false;
 
-// Variáveis para o Termostato Automático
-bool autoThermostat = false;
-bool isAcOn = false;
-unsigned long ultimoComandoAuto = 0;
-float tempAlvo = 24.0;       // Temperatura que queremos atingir
-float tolerancia = 1.0;      // Quantos graus acima do alvo para religar (Histerese)
-String estadoAuto = "Aguardando"; // Progresso atual da automação
-bool forcarEnvioAuto = false; // Força a reavaliação imediata e envio do IR
 
-// Variáveis para o WhatsApp Bot
-bool whatsappEnabled = false;
-String whatsappServerUrl = "";
-String ultimoStatusReg = "WhatsApp desativado";
-String ultimoStatusPing = "WhatsApp desativado";
+uint32_t getTvOffTimerRemainingSeconds() {
+    if (!tvOffTimerActive) return 0;
+    int32_t remainingMs = (int32_t)(tvOffTimerDeadlineMs - millis());
+    if (remainingMs <= 0) return 0;
+    return ((uint32_t)remainingMs + 999) / 1000;
+}
+
+void sendTvIrCode(uint64_t code) {
+    digitalWrite(LED_PLACA, LOW);
+    yield();
+    tvIr.sendSAMSUNG(code, 32, 1);
+    digitalWrite(LED_PLACA, HIGH);
+}
+
+void processTvOffTimer() {
+    if (tvOffTimerActive && (int32_t)(millis() - tvOffTimerDeadlineMs) >= 0) {
+        tvOffTimerActive = false;
+        sendTvIrCode(0xE0E040BF); // Samsung Power toggle; the TV provides no IR state feedback.
+        Serial.println("[TV] Timer expirou; comando POWER enviado.");
+    }
+}
 
  
 // --- LÓGICA DO SENSOR --- 
@@ -128,113 +141,6 @@ bool validarApiKey() {
     return true;
 }
 
-void registrarDispositivo() {
-    if (WiFi.status() != WL_CONNECTED) {
-        ultimoStatusReg = "Falha: WiFi desconectado";
-        Serial.println("[BOT] Nao registrado: WiFi nao conectado.");
-        return;
-    }
-    
-    WiFiClient clientPlain;
-    WiFiClientSecure clientSecure;
-    HTTPClient http;
-    String url = whatsappServerUrl + "/api/whatsapp/devices/register";
-    
-    Serial.println("[BOT] Tentando registrar em: " + url);
-    
-    bool isHttps = url.startsWith("https://");
-    bool beginSuccess = false;
-    
-    if (isHttps) {
-        clientSecure.setInsecure();
-        clientSecure.setBufferSizes(1024, 1024); // Reduz uso de RAM do SSL de 32KB para 2KB
-        beginSuccess = http.begin(clientSecure, url);
-    } else {
-        beginSuccess = http.begin(clientPlain, url);
-    }
-    
-    if (beginSuccess) {
-        http.setTimeout(10000);
-        http.addHeader("Content-Type", "application/json");
-        
-        JsonDocument doc;
-        doc["deviceId"] = "ar_sala";
-        doc["name"] = "Ar Condicionado Sala";
-        doc["localIp"] = "http://" + WiFi.localIP().toString();
-        doc["apiKey"] = API_KEY;
-        
-        String requestBody;
-        serializeJson(doc, requestBody);
-        
-        int httpResponseCode = http.POST(requestBody);
-        if (httpResponseCode > 0) {
-            ultimoStatusReg = "Sucesso (" + String(httpResponseCode) + ")";
-            Serial.printf("[BOT] Registro concluido. Codigo HTTP: %d\n", httpResponseCode);
-            String payload = http.getString();
-            Serial.println("[BOT] Resposta: " + payload);
-        } else {
-            ultimoStatusReg = "Erro: " + http.errorToString(httpResponseCode);
-            Serial.printf("[BOT] Falha no registro. Erro: %s\n", http.errorToString(httpResponseCode).c_str());
-        }
-        http.end();
-    } else {
-        ultimoStatusReg = "Erro ao conectar";
-        Serial.println("[BOT] Erro ao iniciar conexao HTTP para registro.");
-    }
-}
-
-void enviarPing() {
-    if (WiFi.status() != WL_CONNECTED) {
-        ultimoStatusPing = "Falha: WiFi desconectado";
-        Serial.println("[BOT] Ping nao enviado: WiFi nao conectado.");
-        return;
-    }
-    
-    WiFiClient clientPlain;
-    WiFiClientSecure clientSecure;
-    HTTPClient http;
-    String url = whatsappServerUrl + "/api/whatsapp/devices/ping";
-    
-    Serial.println("[BOT] Enviando ping para: " + url);
-    
-    bool isHttps = url.startsWith("https://");
-    bool beginSuccess = false;
-    
-    if (isHttps) {
-        clientSecure.setInsecure();
-        clientSecure.setBufferSizes(1024, 1024); // Reduz uso de RAM do SSL de 32KB para 2KB
-        beginSuccess = http.begin(clientSecure, url);
-    } else {
-        beginSuccess = http.begin(clientPlain, url);
-    }
-    
-    if (beginSuccess) {
-        http.setTimeout(10000);
-        http.addHeader("Content-Type", "application/json");
-        
-        JsonDocument doc;
-        doc["deviceId"] = "ar_sala";
-        doc["localIp"] = "http://" + WiFi.localIP().toString();
-        
-        String requestBody;
-        serializeJson(doc, requestBody);
-        
-        int httpResponseCode = http.POST(requestBody);
-        if (httpResponseCode > 0) {
-            ultimoStatusPing = "Sucesso (" + String(httpResponseCode) + ")";
-            Serial.printf("[BOT] Ping enviado. Codigo HTTP: %d\n", httpResponseCode);
-        } else {
-            ultimoStatusPing = "Erro: " + http.errorToString(httpResponseCode);
-            Serial.printf("[BOT] Falha no ping. Erro: %s\n", http.errorToString(httpResponseCode).c_str());
-        }
-        http.end();
-    } else {
-        ultimoStatusPing = "Erro ao conectar";
-        Serial.println("[BOT] Erro ao iniciar conexao HTTP para ping.");
-    }
-}
-
-// --- NOVOS HANDLERS DA API ---
 void handleApiPower() {
     if (!validarApiKey()) return;
     if (!server.hasArg("status")) {
@@ -271,7 +177,6 @@ void handleApiPower() {
     digitalWrite(LED_PLACA, LOW);
     yield(); ac.send();
     digitalWrite(LED_PLACA, HIGH);
-    isAcOn = ac.getPower();
     
     JsonDocument doc;
     doc["status"] = "success";
@@ -310,7 +215,6 @@ void handleApiTemp() {
     digitalWrite(LED_PLACA, LOW);
     yield(); ac.send();
     digitalWrite(LED_PLACA, HIGH);
-    isAcOn = ac.getPower();
     
     JsonDocument doc;
     doc["status"] = "success";
@@ -365,7 +269,6 @@ void handleApiMode() {
     digitalWrite(LED_PLACA, LOW);
     yield(); ac.send();
     digitalWrite(LED_PLACA, HIGH);
-    isAcOn = ac.getPower();
     
     JsonDocument doc;
     doc["status"] = "success";
@@ -417,7 +320,6 @@ void handleApiFan() {
     digitalWrite(LED_PLACA, LOW);
     yield(); ac.send();
     digitalWrite(LED_PLACA, HIGH);
-    isAcOn = ac.getPower();
     
     JsonDocument doc;
     doc["status"] = "success";
@@ -435,6 +337,8 @@ void handleApiStatus() {
     doc["status"] = "success"; 
     doc["temp_real"] = tempReal; 
     doc["umidade_real"] = umidadeReal; 
+    doc["tv_off_timer_active"] = tvOffTimerActive;
+    doc["tv_off_timer_remaining_seconds"] = getTvOffTimerRemainingSeconds();
     
     // Estado do Ar Condicionado estruturado para o JavaScript
     JsonObject acState = doc["ac_state"].to<JsonObject>();
@@ -453,13 +357,6 @@ void handleApiStatus() {
     acState["timer_off"] = ac.getOffTimer();
     
     doc["ac_state_str"] = ac.toString(); // Retrocompatibilidade se necessário
-    doc["auto_mode"] = autoThermostat;
-    doc["auto_alvo"] = tempAlvo;
-    doc["auto_status"] = estadoAuto;
-    doc["whatsapp_enabled"] = whatsappEnabled;
-    doc["whatsapp_url"] = whatsappServerUrl;
-    doc["whatsapp_status"] = ultimoStatusReg;
-    doc["whatsapp_ping_status"] = ultimoStatusPing;
 
     // Adiciona o historico (array JSON) ordenado do mais antigo pro mais novo
     JsonArray hist = doc["historico"].to<JsonArray>();
@@ -503,235 +400,69 @@ void handleApiPublicIp() {
     server.send(200, "application/json", res);
 }
 
-// --- COMANDOS VIA FILA (COMMAND QUEUE - OPÇÃO C) ---
-
-void enviarResultadoComando(int commandId, bool success, const JsonDocument& responseDoc) {
-    if (WiFi.status() != WL_CONNECTED) {
-        Serial.println("[BOT-CMD] Sem WiFi para enviar resultado.");
-        return;
-    }
-
-    WiFiClient clientPlain;
-    WiFiClientSecure clientSecure;
-    HTTPClient http;
-    String url = whatsappServerUrl + "/api/whatsapp/devices/command-result";
-
-    Serial.printf("[BOT-CMD] Enviando resultado para comando %d\n", commandId);
-
-    bool isHttps = url.startsWith("https://");
-    bool beginSuccess = false;
-
-    if (isHttps) {
-        clientSecure.setInsecure();
-        clientSecure.setBufferSizes(1024, 1024); // Reduz uso de RAM do SSL de 32KB para 2KB
-        beginSuccess = http.begin(clientSecure, url);
-    } else {
-        beginSuccess = http.begin(clientPlain, url);
-    }
-
-    if (beginSuccess) {
-        http.setTimeout(10000);
-        http.addHeader("Content-Type", "application/json");
-
-        JsonDocument doc;
-        doc["deviceId"] = "ar_sala";
-        doc["apiKey"] = API_KEY;
-        doc["commandId"] = commandId;
-        doc["success"] = success;
-        doc["response"] = responseDoc;
-
-        String requestBody;
-        serializeJson(doc, requestBody);
-
-        int httpResponseCode = http.POST(requestBody);
-        if (httpResponseCode > 0) {
-            Serial.printf("[BOT-CMD] Resultado enviado. HTTP Code: %d\n", httpResponseCode);
-        } else {
-            Serial.printf("[BOT-CMD] Erro ao enviar resultado. HTTP: %s\n", http.errorToString(httpResponseCode).c_str());
-        }
-        http.end();
-    } else {
-        Serial.println("[BOT-CMD] Erro ao iniciar conexao HTTP para resultado.");
-    }
-}
-
-void processarFilaComando(int commandId, String endpoint, JsonVariant params) {
-    bool success = false;
-    JsonDocument responseDoc;
-    
-    // Leitura atualizada dos sensores locais para que o retorno vá completo
-    lerSensor();
-
-    if (endpoint == "/api/power") {
-        if (params.containsKey("status")) {
-            String status = params["status"].as<String>();
-            status.toLowerCase();
-            if (status == "on") {
-                ac.on();
-                success = true;
-            } else if (status == "off") {
-                ac.off();
-                success = true;
-            }
-        }
-    } 
-    else if (endpoint == "/api/temp") {
-        if (params.containsKey("v")) {
-            int temp = params["v"].as<int>();
-            if (temp >= 16 && temp <= 31) {
-                ac.setTemp(temp);
-                ac.on();
-                success = true;
-            }
-        }
-    }
-    else if (endpoint == "/api/mode") {
-        if (params.containsKey("v")) {
-            String val = params["v"].as<String>();
-            val.toLowerCase();
-            success = true;
-            if (val == "cool") ac.setMode(kTcl112AcCool);
-            else if (val == "heat") ac.setMode(kTcl112AcHeat);
-            else if (val == "fan") ac.setMode(kTcl112AcFan);
-            else if (val == "dry") ac.setMode(kTcl112AcDry);
-            else if (val == "auto") ac.setMode(kTcl112AcAuto);
-            else success = false;
-            
-            if (success) {
-                ac.on();
-            }
-        }
-    }
-    else if (endpoint == "/api/fan") {
-        if (params.containsKey("v")) {
-            String val = params["v"].as<String>();
-            val.toLowerCase();
-            success = true;
-            if (val == "auto") ac.setFan(kTcl112AcFanAuto);
-            else if (val == "low") ac.setFan(kTcl112AcFanLow);
-            else if (val == "med") ac.setFan(kTcl112AcFanMed);
-            else if (val == "high") ac.setFan(kTcl112AcFanHigh);
-            else success = false;
-        }
-    }
-    else if (endpoint == "/api/status") {
-        success = true;
-    }
-
-    if (success) {
-        // Envia o sinal IR fisicamente para o Ar
-        if (endpoint != "/api/status") {
-            digitalWrite(LED_PLACA, LOW);
-            yield(); ac.send();
-            digitalWrite(LED_PLACA, HIGH);
-            isAcOn = ac.getPower();
-        }
-
-        // Popula a resposta de sucesso com o estado do aparelho e dos sensores
-        responseDoc["status"] = "success";
-        responseDoc["temp_real"] = tempReal;
-        responseDoc["umidade_real"] = umidadeReal;
-        
-        JsonObject acState = responseDoc["ac_state"].to<JsonObject>();
-        acState["power"] = ac.getPower();
-        acState["mode"] = ac.getMode();
-        acState["temp"] = ac.getTemp();
-        acState["fan"] = ac.getFan();
-        acState["swingv"] = ac.getSwingVertical();
-        acState["swingh"] = ac.getSwingHorizontal();
-        acState["turbo"] = ac.getTurbo();
-        acState["econo"] = ac.getEcono();
-        acState["health"] = ac.getHealth();
-        acState["light"] = ac.getLight();
-        acState["quiet"] = ac.getQuiet();
-        acState["timer_on"] = ac.getOnTimer();
-        acState["timer_off"] = ac.getOffTimer();
-    } else {
-        responseDoc["status"] = "error";
-        responseDoc["message"] = "Falha ao processar comando ou parametros invalidos";
-    }
-
-    enviarResultadoComando(commandId, success, responseDoc);
-}
-
-void verificarFilaComandos() {
-    if (WiFi.status() != WL_CONNECTED) {
-        return;
-    }
-
-    WiFiClient clientPlain;
-    WiFiClientSecure clientSecure;
-    HTTPClient http;
-    String url = whatsappServerUrl + "/api/whatsapp/devices/poll-commands?deviceId=ar_sala&apiKey=" + API_KEY;
-
-    bool isHttps = url.startsWith("https://");
-    bool beginSuccess = false;
-
-    if (isHttps) {
-        clientSecure.setInsecure();
-        clientSecure.setBufferSizes(1024, 1024); // Reduz uso de RAM do SSL de 32KB para 2KB
-        beginSuccess = http.begin(clientSecure, url);
-    } else {
-        beginSuccess = http.begin(clientPlain, url);
-    }
-
-    int commandId = -1;
-    String endpoint = "";
-    JsonDocument commandParamsDoc;
-    bool temComando = false;
-
-    if (beginSuccess) {
-        http.setTimeout(10000);
-        int httpResponseCode = http.GET();
-        if (httpResponseCode == HTTP_CODE_OK) {
-            String payload = http.getString();
-            
-            // Tenta decodificar o JSON
-            JsonDocument doc;
-            DeserializationError error = deserializeJson(doc, payload);
-
-            if (!error) {
-                if (doc.containsKey("commandId") && !doc["commandId"].isNull()) {
-                    commandId = doc["commandId"].as<int>();
-                    endpoint = doc["endpoint"].as<String>();
-                    if (doc.containsKey("params")) {
-                        commandParamsDoc = doc["params"];
-                    }
-                    temComando = true;
-                    ultimoStatusPing = "Sucesso (Fila OK)";
-                } else {
-                    ultimoStatusPing = "Sucesso (Fila Vazia)";
-                }
-            } else {
-                Serial.println("[BOT] Erro ao decodificar JSON do poll-commands.");
-                ultimoStatusPing = "Erro JSON";
-            }
-        } else {
-            Serial.printf("[BOT] Erro ao fazer poll: HTTP %d\n", httpResponseCode);
-            ultimoStatusPing = "Erro HTTP " + String(httpResponseCode);
-        }
-        http.end(); // Libera a primeira conexao e memoria SSL aqui antes do processarFilaComando
-    } else {
-        Serial.println("[BOT] Erro ao conectar para poll-commands.");
-        ultimoStatusPing = "Erro Conexao";
-    }
-
-    // Processa o comando se houver, agora que a primeira conexao de poll esta fechada
-    if (temComando && commandId != -1) {
-        Serial.printf("[BOT] Processando comando ID: %d, Rota: %s\n", commandId, endpoint.c_str());
-        delay(100); // Aguarda o stack LwIP/SSL desalocar a RAM da conexao anterior
-        processarFilaComando(commandId, endpoint, commandParamsDoc.as<JsonVariant>());
-    }
-}
- 
-// --- PROCESSADOR DE COMANDOS --- 
-void handleCommand() { 
-    if (server.hasArg("c")) { 
-        String c = server.arg("c"); 
+// --- PROCESSADOR DE COMANDOS ---
+void handleCommand() {
+    if (server.hasArg("c")) {
+        String c = server.arg("c");
         bool sendIr = false;
+        uint64_t tvCode = 0;
+
+        if (c == "TV_TIMER_CANCEL") {
+            tvOffTimerActive = false;
+            server.send(200, "application/json", "{\"status\":\"ok\",\"message\":\"Timer da TV cancelado\"}");
+            return;
+        }
+        if (c.startsWith("TV_TIMER_SET_")) {
+            int minutes = c.substring(13).toInt();
+            if (minutes < 1 || minutes > kTvOffTimerMaxMinutes) {
+                server.send(400, "application/json", "{\"status\":\"error\",\"message\":\"Timer da TV deve ficar entre 1 e 720 minutos\"}");
+                return;
+            }
+            tvOffTimerDeadlineMs = millis() + (uint32_t)minutes * 60000UL;
+            tvOffTimerActive = true;
+            server.send(200, "application/json", "{\"status\":\"ok\",\"message\":\"Timer da TV definido\"}");
+            return;
+        }
+
+        // Samsung TV remote (32-bit Samsung IR protocol).
+        if (c == "TV_POWER") {
+            tvOffTimerActive = false;
+            tvCode = 0xE0E040BF;
+        }
+        else if (c == "TV_VOLUME_UP") tvCode = 0xE0E0E01F;
+        else if (c == "TV_VOLUME_DOWN") tvCode = 0xE0E0D02F;
+        else if (c == "TV_MUTE") tvCode = 0xE0E0F00F;
+        else if (c == "TV_CHANNEL_UP") tvCode = 0xE0E048B7;
+        else if (c == "TV_CHANNEL_DOWN") tvCode = 0xE0E008F7;
+        else if (c == "TV_CHANNEL_LIST") tvCode = 0xE0E0D629;
+        else if (c == "TV_UP") tvCode = 0xE0E006F9;
+        else if (c == "TV_DOWN") tvCode = 0xE0E08679;
+        else if (c == "TV_LEFT") tvCode = 0xE0E0A659;
+        else if (c == "TV_RIGHT") tvCode = 0xE0E046B9;
+        else if (c == "TV_ENTER") tvCode = 0xE0E016E9;
+        else if (c == "TV_RETURN") tvCode = 0xE0E01AE5;
+        else if (c == "TV_EXIT") tvCode = 0xE0E0B44B;
+        else if (c == "TV_TOOLS") tvCode = 0xE0E0D22D;
+        else if (c == "TV_MENU") tvCode = 0xE0E058A7;
+        else if (c == "TV_SOURCE") tvCode = 0xE0E0807F;
+        else if (c == "TV_0") tvCode = 0xE0E08877;
+        else if (c == "TV_1") tvCode = 0xE0E020DF;
+        else if (c == "TV_2") tvCode = 0xE0E0A05F;
+        else if (c == "TV_3") tvCode = 0xE0E0609F;
+        else if (c == "TV_4") tvCode = 0xE0E010EF;
+        else if (c == "TV_5") tvCode = 0xE0E0906F;
+        else if (c == "TV_6") tvCode = 0xE0E050AF;
+        else if (c == "TV_7") tvCode = 0xE0E030CF;
+        else if (c == "TV_8") tvCode = 0xE0E0B04F;
+        else if (c == "TV_9") tvCode = 0xE0E0708F;
+
+        if (tvCode != 0) {
+            sendTvIrCode(tvCode);
+        }
         
         // Energia
-        if (c == "ON") { ac.on(); sendIr = true; } 
+        if (tvCode != 0) { /* TV command sent above. */ }
+        else if (c == "ON") { ac.on(); sendIr = true; }
         else if (c == "OFF") { ac.off(); sendIr = true; } 
         else if (c == "TOGGLE_POWER") {
             if (ac.getPower()) ac.off();
@@ -802,37 +533,6 @@ void handleCommand() {
         else if (c == "P23_MED") { ac.setTemp(23); ac.setFan(kTcl112AcFanMed); ac.on(); sendIr = true; }
         else if (c == "P22_LOW") { ac.setTemp(22); ac.setFan(kTcl112AcFanLow); ac.on(); sendIr = true; }
 
-        // Termostato Inteligente (Controle por software no NodeMCU)
-        else if (c == "AUTO_ON")  { autoThermostat = true; estadoAuto = "Avaliando..."; forcarEnvioAuto = true; }
-        else if (c == "AUTO_OFF") { autoThermostat = false; estadoAuto = "Aguardando"; }
-        else if (c.startsWith("ALVO_")) { 
-            tempAlvo = c.substring(5).toFloat(); 
-            forcarEnvioAuto = true; 
-        }
-        else if (c == "BOT_ENABLE") {
-            whatsappEnabled = true;
-            whatsappServerUrl = WHATSAPP_SERVER_URL;
-            ultimoStatusReg = "Ativado, registrando...";
-            ultimoStatusPing = "Ativado";
-            registrarDispositivo();
-        }
-        else if (c == "BOT_DISABLE") {
-            whatsappEnabled = false;
-            ultimoStatusReg = "WhatsApp desativado";
-            ultimoStatusPing = "WhatsApp desativado";
-        }
-        else if (c == "BOT_REGISTER") {
-            if (whatsappEnabled) registrarDispositivo();
-        }
-        else if (c == "BOT_PING") {
-            if (whatsappEnabled) enviarPing();
-        }
-        else if (c == "SET_BOT_URL") {
-            if (server.hasArg("url")) {
-                whatsappServerUrl = server.arg("url");
-                Serial.println("[BOT] URL atualizada para: " + whatsappServerUrl);
-            }
-        }
         else if (c == "RESTART") {
             JsonDocument doc;
             doc["status"] = "ok";
@@ -850,7 +550,6 @@ void handleCommand() {
             digitalWrite(LED_PLACA, LOW); 
             yield(); ac.send(); 
             digitalWrite(LED_PLACA, HIGH); 
-            isAcOn = ac.getPower();
         }
 
         JsonDocument doc;
@@ -865,13 +564,13 @@ void handleCommand() {
 } 
  
 void setup() { 
-    whatsappServerUrl = WHATSAPP_SERVER_URL;
     Serial.begin(115200); 
     pinMode(LED_PLACA, OUTPUT); 
     digitalWrite(LED_PLACA, HIGH); 
      
     dht.begin(); 
     ac.begin(); 
+    tvIr.begin();
     ac.setModel(tcl_ac_remote_model_t::TAC09CHSD); // Configura modelo completo da TCL com todos os botoes
  
     WiFi.mode(WIFI_STA);
@@ -883,9 +582,6 @@ void setup() {
         Serial.println(WiFi.localIP());
         if (MDNS.begin("meuar")) {
             Serial.println("mDNS OK: http://meuar.local");
-        }
-        if (whatsappEnabled) {
-            registrarDispositivo();
         }
         String wan = getPublicIP();
         if (wan.length() > 0) {
@@ -920,7 +616,7 @@ void setup() {
  
 void loop() { 
     // Reinicializa o ESP a cada 12 horas para garantir estabilidade e limpar a RAM
-    if (millis() >= 43200000) {
+    if (millis() >= 43200000 && !tvOffTimerActive) {
         Serial.println("[SISTEMA] Reiniciando ESP8266 programado a cada 12 horas...");
         delay(200);
         ESP.restart();
@@ -928,71 +624,10 @@ void loop() {
 
     server.handleClient(); 
     MDNS.update(); 
+    processTvOffTimer();
     
-    // --- LÓGICA DO TERMOSTATO AUTOMÁTICO ---
+    // Leitura contínua do sensor ambiente e atualização do histórico.
     lerSensor();
-    if (autoThermostat && tempReal > 0) {
-        // Verifica a cada 60s ou imediatamente se o usuário alterou alguma configuração
-        if (millis() - ultimoComandoAuto > 60000 || forcarEnvioAuto) {
-            
-            // Se a temperatura do quarto ficou quente demais, LIGA o Ar
-            if (tempReal >= (tempAlvo + tolerancia)) {
-                // Se o ar estiver desligado, ou se a gente acabou de forçar uma atualização:
-                if (!isAcOn || forcarEnvioAuto) {
-                    estadoAuto = "Forçando frio (Ar em 18C)";
-                    Serial.println("Auto: " + estadoAuto);
-                    
-                    ac.on();
-                    ac.setTemp(18); // Ajusta o Ar para 18°C para "enganar" o termostato interno dele e obrigar a gelar o quarto
-                    
-                    digitalWrite(LED_PLACA, LOW); 
-                    yield(); ac.send(); 
-                    digitalWrite(LED_PLACA, HIGH); 
-                    
-                    isAcOn = true;
-                    ultimoComandoAuto = millis();
-                    forcarEnvioAuto = false;
-                } else {
-                    estadoAuto = "Resfriando o quarto...";
-                }
-                
-            // Se a temperatura do quarto atingiu o Alvo ou ficou mais frio, DESLIGA o ar.
-            } else if (tempReal <= tempAlvo) {
-                if (isAcOn || forcarEnvioAuto) {
-                    estadoAuto = "Alvo atingido! Desligando Ar.";
-                    Serial.println("Auto: " + estadoAuto);
-                    
-                    ac.off();
-                    
-                    digitalWrite(LED_PLACA, LOW); 
-                    yield(); ac.send(); 
-                    digitalWrite(LED_PLACA, HIGH); 
-                    
-                    isAcOn = false;
-                    ultimoComandoAuto = millis();
-                    forcarEnvioAuto = false;
-                } else {
-                    estadoAuto = "Aguardando esquentar...";
-                }
-            } else {
-                // Zona Neutra: a temperatura está entre o alvo e o ponto de religar.
-                if (forcarEnvioAuto) forcarEnvioAuto = false; // Apenas limpa a flag
-                
-                if (isAcOn) {
-                     estadoAuto = "Resfriando o quarto...";
-                } else {
-                     estadoAuto = "Aguardando esquentar...";
-                }
-            }
-        }
-    }
-    
-    // --- CONSULTA DA FILA DE COMANDOS ---
-    static unsigned long ultimoPollComando = 0;
-    if (whatsappEnabled && (millis() - ultimoPollComando >= 10000 || ultimoPollComando == 0)) {
-        ultimoPollComando = millis();
-        verificarFilaComandos();
-    }
     
     // --- LOG DE RAM LIVRE ---
     static unsigned long ultimoLogRam = 0;
@@ -1001,13 +636,5 @@ void loop() {
         Serial.printf("[RAM] Livre: %u / %u bytes (%.1f%% usado)\n", ESP.getFreeHeap(), TOTAL_RAM, (1.0 - (float)ESP.getFreeHeap() / TOTAL_RAM) * 100.0);
     }
 
-    // --- PING PERIÓDICO (HEARTBEAT) ---
-    static unsigned long ultimoPing = 0;
-    if (ultimoPing == 0) {
-        ultimoPing = millis();
-    }
-    if (whatsappEnabled && millis() - ultimoPing >= 3600000) {
-        ultimoPing = millis();
-        enviarPing();
-    }
+
 }
